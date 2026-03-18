@@ -45,26 +45,10 @@ function loadSettings() {
   });
 }
 
-// ── Team dropdown ─────────────────────────────────────────────
+// ── Team list ─────────────────────────────────────────────────
 function loadTeams() {
   db.ref('tournament/teams').on('value', snap => {
-    const teams = snap.val() || {};
-    const sel   = document.getElementById('team-select');
-    const prev  = sel.value;
-
-    sel.innerHTML = '<option value="">— Select your team —</option>';
-    Object.entries(teams)
-      .sort((a, b) => a[1].name.localeCompare(b[1].name))
-      .forEach(([id, team]) => {
-        const opt = document.createElement('option');
-        opt.value       = id;
-        opt.textContent = team.name;
-        sel.appendChild(opt);
-      });
-
-    if (prev) sel.value = prev;
-
-    renderLandingTeams(teams);
+    renderLandingTeams(snap.val() || {});
   });
 }
 
@@ -128,6 +112,7 @@ function renderLandingTeams(teams) {
 
     row.appendChild(leftEl);
     row.appendChild(detailsEl);
+    row.addEventListener('click', () => openPinModal(id, team));
     list.appendChild(row);
   });
 }
@@ -144,31 +129,42 @@ function parseTeeTime(timeStr) {
   return h * 60 + m;
 }
 
-// ── Login / PIN check ─────────────────────────────────────────
-document.getElementById('login-btn').addEventListener('click', attemptLogin);
-document.getElementById('pin-input').addEventListener('keyup', e => {
-  if (e.key === 'Enter') attemptLogin();
-});
+// ── PIN modal ─────────────────────────────────────────────────
+let pendingTeamId = null;
+let pendingTeam   = null;
 
-async function attemptLogin() {
-  const teamId = document.getElementById('team-select').value;
-  const pin    = document.getElementById('pin-input').value.trim();
-  const errEl  = document.getElementById('login-error');
-
-  if (!teamId) { errEl.textContent = 'Please select your team.'; return; }
-  if (!pin)    { errEl.textContent = 'Please enter your PIN.';   return; }
-
-  const snap = await db.ref(`tournament/teams/${teamId}`).get();
-  const team = snap.val();
-
-  if (!team)           { errEl.textContent = 'Team not found.';    return; }
-  if (team.pin !== pin) { errEl.textContent = 'Incorrect PIN. Try again.'; return; }
-
-  errEl.textContent  = '';
-  currentTeamId      = teamId;
-  currentTeamData    = team;
-  openScorecard(teamId, team);
+function openPinModal(teamId, team) {
+  pendingTeamId = teamId;
+  pendingTeam   = team;
+  document.getElementById('pin-modal-team-name').textContent = team.name;
+  document.getElementById('pin-modal-input').value           = '';
+  document.getElementById('pin-modal-error').textContent     = '';
+  document.getElementById('pin-modal').classList.remove('hidden');
+  setTimeout(() => document.getElementById('pin-modal-input').focus(), 50);
 }
+
+function submitPin() {
+  const pin   = document.getElementById('pin-modal-input').value.trim();
+  const errEl = document.getElementById('pin-modal-error');
+  if (!pin)                        { errEl.textContent = 'Please enter your PIN.';    return; }
+  if (pendingTeam.pin !== pin)     { errEl.textContent = 'Incorrect PIN. Try again.'; return; }
+  document.getElementById('pin-modal').classList.add('hidden');
+  currentTeamId   = pendingTeamId;
+  currentTeamData = pendingTeam;
+  openScorecard(pendingTeamId, pendingTeam);
+}
+
+document.getElementById('pin-modal-submit').addEventListener('click', submitPin);
+document.getElementById('pin-modal-input').addEventListener('keyup', e => {
+  if (e.key === 'Enter') submitPin();
+});
+document.getElementById('pin-modal-cancel').addEventListener('click', () => {
+  document.getElementById('pin-modal').classList.add('hidden');
+});
+document.getElementById('pin-modal').addEventListener('click', e => {
+  if (e.target === document.getElementById('pin-modal'))
+    document.getElementById('pin-modal').classList.add('hidden');
+});
 
 // ── Scorecard ─────────────────────────────────────────────────
 function openScorecard(teamId, team) {

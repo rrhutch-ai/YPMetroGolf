@@ -20,36 +20,14 @@
         <div class="t-instructions" id="t-instructions" style="display:none;"></div>
       </div>
 
-      <div class="login-card">
-        <h2>Enter Scorecard</h2>
-
-        <div class="form-group">
-          <label for="team-select">Your Team</label>
-          <select id="team-select">
-            <option value="">— Select your team —</option>
-          </select>
-        </div>
-
-        <div class="form-group">
-          <label for="pin-input">PIN</label>
-          <div class="pin-input-wrapper">
-            <input type="tel" id="pin-input" placeholder="• • • •" maxlength="6"
-                   inputmode="numeric" pattern="[0-9]*" autocomplete="off" />
-          </div>
-        </div>
-
-        <p class="error-msg" id="login-error"></p>
-        <button class="btn btn-primary" id="login-btn">Go to My Scorecard</button>
+      <div id="landing-teams-section" style="display:none;margin-bottom:1rem;">
+        <div class="landing-teams-header">Tap your team to enter your scorecard</div>
+        <div id="landing-teams-list"></div>
       </div>
 
       <button class="leaderboard-link-btn" id="leaderboard-btn">
         🏆 View Leaderboard
       </button>
-
-      <div id="landing-teams-section" style="display:none;margin-top:1.25rem;">
-        <div class="landing-teams-header">Teams &amp; Tee Times</div>
-        <div id="landing-teams-list"></div>
-      </div>
     </div>
   </div>
 
@@ -89,6 +67,25 @@
     </div>
 
     <div class="leaderboard-container" id="leaderboard-list"></div>
+  </div>
+
+  <!-- PIN Modal -->
+  <div id="pin-modal" class="modal-overlay hidden">
+    <div class="modal-card">
+      <h3 id="pin-modal-team-name" style="color:var(--teal);font-size:1.25rem;margin-bottom:0.25rem;"></h3>
+      <p style="color:var(--gray-500);margin-bottom:1rem;">Enter your team PIN to access your scorecard.</p>
+      <div class="form-group">
+        <div class="pin-input-wrapper">
+          <input type="tel" id="pin-modal-input" placeholder="• • • •" maxlength="6"
+                 inputmode="numeric" pattern="[0-9]*" autocomplete="off" />
+        </div>
+      </div>
+      <p class="error-msg" id="pin-modal-error"></p>
+      <div style="display:flex;gap:0.75rem;margin-top:0.5rem;">
+        <button class="btn btn-primary" id="pin-modal-submit" style="flex:1;padding:.75rem;">Go to My Scorecard</button>
+        <button class="cancel-btn" id="pin-modal-cancel">Cancel</button>
+      </div>
+    </div>
   </div>
 
   <!-- Firebase SDKs (compat) -->
