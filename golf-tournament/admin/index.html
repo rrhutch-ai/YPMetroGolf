@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tournament Admin</title>
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+
+<!-- ===== Login Screen ===== -->
+<div id="login-screen" class="login-wrapper">
+  <div class="login-card">
+    <div class="logo">⛳</div>
+    <h2>Admin Portal</h2>
+    <p>Enter the admin password to manage the tournament.</p>
+    <div id="login-error" class="alert alert-error hidden"></div>
+    <div class="form-group">
+      <label>Password</label>
+      <input type="password" id="admin-password" class="pin-display"
+             placeholder="••••••••" autocomplete="current-password" />
+    </div>
+    <button class="btn btn-primary btn-full" onclick="doLogin()">Sign In</button>
+  </div>
+</div>
+
+<!-- ===== Admin Panel (hidden until logged in) ===== -->
+<div id="admin-panel" class="hidden">
+
+  <div class="admin-header">
+    <div style="display:flex;align-items:center;gap:0.75rem;">
+      <h1>⛳ Tournament Admin</h1>
+      <span class="admin-badge">Admin</span>
+    </div>
+    <button class="btn btn-ghost btn-sm"
+            style="color:rgba(255,255,255,0.85);border-color:rgba(255,255,255,0.35);"
+            onclick="doLogout()">Sign Out</button>
+  </div>
+
+  <div class="container">
+
+    <!-- ---- Tournament Settings ---- -->
+    <div class="card">
+      <h2>Tournament Settings</h2>
+      <div id="settings-alert"></div>
+
+      <div class="form-group">
+        <label>Tournament Name</label>
+        <input type="text" id="tourney-name" placeholder="e.g., Annual Charity Golf Classic" />
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Date</label>
+          <input type="date" id="tourney-date" />
+        </div>
+        <div class="form-group">
+          <label>Format</label>
+          <input type="text" id="tourney-format" value="Scramble" placeholder="e.g., Scramble" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Instructions / Notes for Players</label>
+        <textarea id="tourney-instructions"
+                  placeholder="Enter rules, notes, or any info players should know…"></textarea>
+      </div>
+      <button class="btn btn-primary" onclick="saveTournament()">💾 Save Tournament Info</button>
+    </div>
+
+    <!-- ---- Add / Edit Team ---- -->
+    <div class="card">
+      <h2 id="team-form-title">Add Team</h2>
+      <div id="team-alert"></div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Team Name</label>
+          <input type="text" id="team-name" placeholder="e.g., The Eagles" />
+        </div>
+        <div class="form-group">
+          <label>PIN (4–6 digits)</label>
+          <input type="text" id="team-pin" inputmode="numeric" placeholder="e.g., 1234" maxlength="6" />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Players (all 4 required)</label>
+        <div class="players-grid">
+          <input type="text" id="player-1" placeholder="Player 1" />
+          <input type="text" id="player-2" placeholder="Player 2" />
+          <input type="text" id="player-3" placeholder="Player 3" />
+          <input type="text" id="player-4" placeholder="Player 4" />
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Starting Hole</label>
+          <select id="starting-hole"></select>
+        </div>
+        <div class="form-group">
+          <label>Tee Time</label>
+          <input type="time" id="tee-time" />
+        </div>
+      </div>
+
+      <div style="display:flex;gap:0.75rem;flex-wrap:wrap;">
+        <button class="btn btn-accent" onclick="saveTeam()">Save Team</button>
+        <button class="btn btn-ghost" id="cancel-edit-btn" onclick="cancelEdit()" style="display:none;">
+          Cancel Edit
+        </button>
+      </div>
+    </div>
+
+    <!-- ---- Teams List ---- -->
+    <div class="card">
+      <h2>Teams (<span id="team-count">0</span>)</h2>
+      <div id="teams-list">
+        <div class="empty-state">
+          <div class="icon">👥</div>
+          <p>No teams added yet. Use the form above to add your first team.</p>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /container -->
+</div><!-- /admin-panel -->
+
+<!-- Firebase SDK (compat v9) -->
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+<script src="../js/firebase-config.js"></script>
+<script src="../js/admin.js"></script>
+</body>
+</html>

@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Golf Tournament Scoring</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- ===== Site Header ===== -->
+<header class="site-header">
+  <h1 id="header-title">⛳ Golf Tournament</h1>
+  <div class="subtitle" id="header-subtitle"></div>
+</header>
+
+<!-- ===== Tab Navigation ===== -->
+<nav class="tab-nav">
+  <button class="tab-btn active" id="tab-scorecard"   onclick="switchTab('scorecard')">🏌️ Scorecard</button>
+  <button class="tab-btn"        id="tab-leaderboard" onclick="switchTab('leaderboard')">📊 Leaderboard</button>
+</nav>
+
+<div class="container">
+
+  <!-- ==================== SCORECARD TAB ==================== -->
+  <div class="tab-content active" id="content-scorecard">
+
+    <!-- Tournament Info Banner -->
+    <div id="tournament-banner" class="tournament-info hidden">
+      <h2 id="banner-name"></h2>
+      <div class="meta">
+        <span id="banner-date"></span>
+        <span id="banner-format"></span>
+      </div>
+      <div id="banner-instructions" class="instructions hidden"></div>
+    </div>
+
+    <!-- Team Login -->
+    <div id="team-login" class="card">
+      <h2>Select Your Team</h2>
+      <div class="form-group">
+        <label>Team</label>
+        <select id="team-select">
+          <option value="">— Choose your team —</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Team PIN</label>
+        <input type="password" id="pin-input" class="pin-display"
+               placeholder="Enter your PIN" maxlength="6" autocomplete="off" />
+      </div>
+      <div id="login-error" class="alert alert-error hidden"></div>
+      <button class="btn btn-accent btn-full" onclick="doTeamLogin()">View Scorecard →</button>
+    </div>
+
+    <!-- Scorecard (shown after PIN verified) -->
+    <div id="scorecard-section" class="hidden">
+      <div class="card">
+
+        <!-- Team + total header -->
+        <div class="scorecard-header">
+          <div>
+            <div class="scorecard-team" id="sc-team-name"></div>
+            <div class="scorecard-players" id="sc-players"></div>
+            <div id="sc-tee-info" style="margin-top:0.5rem; display:flex; flex-wrap:wrap; gap:0.4rem;"></div>
+          </div>
+          <div style="text-align:center;">
+            <div class="total-score">
+              <div class="label">Total</div>
+              <div class="value" id="sc-total">—</div>
+            </div>
+            <div class="save-status" id="save-status" style="margin-top:0.4rem;"></div>
+          </div>
+        </div>
+
+        <!-- Front Nine -->
+        <div class="nine-label">Front Nine — Holes 1–9</div>
+        <div class="holes-grid" id="holes-front"></div>
+        <div class="nine-total">Front 9: <span id="front-total">—</span></div>
+
+        <!-- Back Nine -->
+        <div class="nine-label" style="margin-top:1.1rem;">Back Nine — Holes 10–18</div>
+        <div class="holes-grid" id="holes-back"></div>
+        <div class="nine-total">Back 9: <span id="back-total">—</span></div>
+
+        <div style="margin-top:1.25rem;">
+          <button class="btn btn-ghost btn-sm" onclick="switchTeam()">↩ Switch Team</button>
+        </div>
+
+      </div>
+    </div>
+
+  </div><!-- /scorecard tab -->
+
+  <!-- ==================== LEADERBOARD TAB ==================== -->
+  <div class="tab-content" id="content-leaderboard">
+    <div class="card">
+      <h2>Live Leaderboard</h2>
+      <div id="leaderboard-content">
+        <div class="empty-state">
+          <div class="icon">📊</div>
+          <p>No scores yet — check back soon!</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /container -->
+
+<!-- Firebase SDK (compat v9) -->
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+<script src="js/firebase-config.js"></script>
+<script src="js/player.js"></script>
+</body>
+</html>
