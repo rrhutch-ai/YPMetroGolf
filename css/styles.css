@@ -180,10 +180,29 @@ textarea { resize: vertical; min-height: 80px; }
   font-size: 1.125rem;
   font-weight: 700;
   flex: 1;
-  min-width: 0;
+}
+
+/* ── Scorecard two-row header ── */
+.sc-app-header {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.5rem;
+  padding: 0.75rem 1.25rem;
+}
+
+.sc-header-team-name {
+  font-size: 1.125rem;
+  font-weight: 700;
+  text-align: center;
+  white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  white-space: nowrap;
+}
+
+.sc-header-actions {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
 }
 
 .app-header .back-btn {
