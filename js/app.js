@@ -154,14 +154,14 @@ function submitPin() {
   openScorecard(pendingTeamId, pendingTeam);
 }
 
-document.getElementById('pin-modal-submit').addEventListener('click', submitPin);
-document.getElementById('pin-modal-input').addEventListener('keyup', e => {
+document.getElementById('pin-modal-submit')?.addEventListener('click', submitPin);
+document.getElementById('pin-modal-input')?.addEventListener('keyup', e => {
   if (e.key === 'Enter') submitPin();
 });
-document.getElementById('pin-modal-cancel').addEventListener('click', () => {
+document.getElementById('pin-modal-cancel')?.addEventListener('click', () => {
   document.getElementById('pin-modal').classList.add('hidden');
 });
-document.getElementById('pin-modal').addEventListener('click', e => {
+document.getElementById('pin-modal')?.addEventListener('click', e => {
   if (e.target === document.getElementById('pin-modal'))
     document.getElementById('pin-modal').classList.add('hidden');
 });
@@ -329,12 +329,12 @@ function renderLeaderboard(rows) {
 }
 
 // ── Navigation ────────────────────────────────────────────────
-document.getElementById('leaderboard-btn').addEventListener('click',    openLeaderboard);
-document.getElementById('sc-leaderboard-btn').addEventListener('click', openLeaderboard);
+document.getElementById('leaderboard-btn')?.addEventListener('click',    openLeaderboard);
+document.getElementById('sc-leaderboard-btn')?.addEventListener('click', openLeaderboard);
 
-document.getElementById('sc-back-btn').addEventListener('click', () => showView('landing'));
+document.getElementById('sc-back-btn')?.addEventListener('click', () => showView('landing'));
 
-document.getElementById('lb-back-btn').addEventListener('click', () => {
+document.getElementById('lb-back-btn')?.addEventListener('click', () => {
   if (currentTeamId) showView('scorecard');
   else               showView('landing');
 });
