@@ -154,6 +154,36 @@
         </div>
       </div>
 
+      <!-- ── CSV Import ── -->
+      <div class="section-card">
+        <div class="section-header">
+          <h2>📤 Import Teams via CSV</h2>
+        </div>
+        <div class="section-body">
+          <p style="font-size:0.875rem;color:var(--gray-500);margin-bottom:0.5rem;">
+            Upload a CSV file to bulk-import teams. Column order:
+          </p>
+          <p style="font-size:0.8125rem;color:var(--gray-700);background:var(--gray-100);padding:0.5rem 0.75rem;border-radius:var(--radius);margin-bottom:1rem;font-family:monospace;">
+            Team Name, Player 1, Player 2, Player 3, Player 4, PIN, Starting Hole, Tee Time
+          </p>
+          <p style="font-size:0.8125rem;color:var(--gray-500);margin-bottom:1rem;">
+            Players 2–4, Starting Hole, and Tee Time are optional. PIN must be 4–6 digits. A header row is automatically skipped.
+          </p>
+          <div class="csv-upload-area" id="csv-drop-area">
+            <div style="font-size:2rem;">📂</div>
+            <p>Drag &amp; drop a CSV file here, or click to browse</p>
+            <input type="file" id="csv-file-input" accept=".csv,text/csv" style="display:none;" />
+          </div>
+          <div id="csv-preview" style="display:none;margin-top:1rem;">
+            <div id="csv-preview-content"></div>
+            <div style="display:flex;gap:0.75rem;margin-top:1rem;">
+              <button class="btn btn-primary" id="csv-import-btn" style="width:auto;padding:.625rem 1.75rem;">Import Teams</button>
+              <button class="cancel-btn" id="csv-cancel-btn">Cancel</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- ── Teams List ── -->
       <div class="section-card">
         <div class="section-header">

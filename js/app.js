@@ -33,7 +33,11 @@ function loadSettings() {
 
     const instrEl = document.getElementById('t-instructions');
     if (s.instructions) {
-      instrEl.textContent = s.instructions;
+      instrEl.innerHTML = s.instructions
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/\n/g, '<br>');
       instrEl.style.display = 'block';
     } else {
       instrEl.style.display = 'none';
@@ -59,7 +63,70 @@ function loadTeams() {
       });
 
     if (prev) sel.value = prev;
+
+    renderLandingTeams(teams);
   });
+}
+
+function renderLandingTeams(teams) {
+  const section = document.getElementById('landing-teams-section');
+  const list    = document.getElementById('landing-teams-list');
+  const entries = Object.keys(teams);
+
+  if (entries.length === 0) {
+    section.style.display = 'none';
+    return;
+  }
+
+  section.style.display = 'block';
+
+  const sorted = Object.entries(teams).sort((a, b) => {
+    const timeA = parseTeeTime(a[1].teeTime);
+    const timeB = parseTeeTime(b[1].teeTime);
+    if (timeA !== timeB) return timeA - timeB;
+    return a[1].name.localeCompare(b[1].name);
+  });
+
+  list.innerHTML = '';
+  sorted.forEach(([id, team]) => {
+    const row = document.createElement('div');
+    row.className = 'landing-team-row';
+
+    const nameEl = document.createElement('div');
+    nameEl.className = 'landing-team-name';
+    nameEl.textContent = team.name;
+
+    const detailsEl = document.createElement('div');
+    detailsEl.className = 'landing-team-details';
+
+    const holeEl = document.createElement('span');
+    holeEl.className = 'landing-team-hole';
+    holeEl.textContent = `Hole ${team.startingHole || 1}`;
+    detailsEl.appendChild(holeEl);
+
+    if (team.teeTime) {
+      const timeEl = document.createElement('span');
+      timeEl.className = 'landing-team-time';
+      timeEl.textContent = team.teeTime;
+      detailsEl.appendChild(timeEl);
+    }
+
+    row.appendChild(nameEl);
+    row.appendChild(detailsEl);
+    list.appendChild(row);
+  });
+}
+
+function parseTeeTime(timeStr) {
+  if (!timeStr) return Infinity;
+  const match = timeStr.match(/(\d+):(\d+)\s*(AM|PM)/i);
+  if (!match) return Infinity;
+  let h = Number(match[1]);
+  const m = Number(match[2]);
+  const ampm = match[3].toUpperCase();
+  if (ampm === 'PM' && h !== 12) h += 12;
+  if (ampm === 'AM' && h === 12) h = 0;
+  return h * 60 + m;
 }
 
 // ── Login / PIN check ─────────────────────────────────────────

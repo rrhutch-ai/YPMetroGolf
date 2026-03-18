@@ -215,6 +215,187 @@ function deleteTeam(id, name) {
     .catch(err => showAlert('Error deleting team: ' + err.message, 'error'));
 }
 
+// ── CSV Import ────────────────────────────────────────────────
+let csvParsedTeams = [];
+
+const csvDropArea       = document.getElementById('csv-drop-area');
+const csvFileInput      = document.getElementById('csv-file-input');
+const csvPreview        = document.getElementById('csv-preview');
+const csvPreviewContent = document.getElementById('csv-preview-content');
+const csvImportBtn      = document.getElementById('csv-import-btn');
+const csvCancelBtn      = document.getElementById('csv-cancel-btn');
+
+csvDropArea.addEventListener('click', () => csvFileInput.click());
+csvDropArea.addEventListener('dragover', e => {
+  e.preventDefault();
+  csvDropArea.style.borderColor = 'var(--teal)';
+});
+csvDropArea.addEventListener('dragleave', () => {
+  csvDropArea.style.borderColor = '';
+});
+csvDropArea.addEventListener('drop', e => {
+  e.preventDefault();
+  csvDropArea.style.borderColor = '';
+  const file = e.dataTransfer.files[0];
+  if (file) handleCsvFile(file);
+});
+csvFileInput.addEventListener('change', e => {
+  const file = e.target.files[0];
+  if (file) handleCsvFile(file);
+});
+
+function handleCsvFile(file) {
+  const reader = new FileReader();
+  reader.onload = e => {
+    csvParsedTeams = parseCsv(e.target.result);
+    renderCsvPreview(csvParsedTeams);
+  };
+  reader.readAsText(file);
+}
+
+function parseCsvLine(line) {
+  const result = [];
+  let current = '';
+  let inQuotes = false;
+  for (let i = 0; i < line.length; i++) {
+    const c = line[i];
+    if (c === '"') {
+      inQuotes = !inQuotes;
+    } else if (c === ',' && !inQuotes) {
+      result.push(current);
+      current = '';
+    } else {
+      current += c;
+    }
+  }
+  result.push(current);
+  return result;
+}
+
+function parseCsv(text) {
+  const lines = text.split(/\r?\n/).filter(l => l.trim());
+  // Skip header row if first column looks like a label
+  let startIdx = 0;
+  const firstCol = (parseCsvLine(lines[0])[0] || '').toLowerCase();
+  if (firstCol === 'team name' || firstCol === 'team' || firstCol === 'name') startIdx = 1;
+
+  return lines.slice(startIdx).map(line => {
+    const cols       = parseCsvLine(line);
+    const name       = (cols[0] || '').trim();
+    const p1         = (cols[1] || '').trim();
+    const p2         = (cols[2] || '').trim();
+    const p3         = (cols[3] || '').trim();
+    const p4         = (cols[4] || '').trim();
+    const pin        = (cols[5] || '').trim();
+    const startHole  = Math.min(18, Math.max(1, parseInt(cols[6] || '1', 10) || 1));
+    const rawTime    = (cols[7] || '').trim();
+
+    let teeTime = '';
+    if (rawTime) {
+      const ampmMatch = rawTime.match(/(\d+):(\d+)\s*(AM|PM)/i);
+      if (ampmMatch) {
+        teeTime = `${ampmMatch[1]}:${ampmMatch[2]} ${ampmMatch[3].toUpperCase()}`;
+      } else {
+        const timeMatch = rawTime.match(/(\d+):(\d+)/);
+        if (timeMatch) {
+          let h = Number(timeMatch[1]);
+          const m = timeMatch[2];
+          const ampm = h >= 12 ? 'PM' : 'AM';
+          const hour = h % 12 || 12;
+          teeTime = `${hour}:${m} ${ampm}`;
+        }
+      }
+    }
+
+    const valid = !!name && !!p1 && /^\d{4,6}$/.test(pin);
+    return { name, players: [p1, p2, p3, p4], pin, startingHole: startHole, teeTime, valid };
+  }).filter(t => t.name);
+}
+
+function renderCsvPreview(teams) {
+  if (teams.length === 0) {
+    showAlert('No rows found in CSV.', 'error');
+    return;
+  }
+
+  const validCount   = teams.filter(t => t.valid).length;
+  const invalidCount = teams.length - validCount;
+
+  let html = `
+    <p style="font-size:0.875rem;margin-bottom:0.75rem;color:var(--gray-700);">
+      Found <strong>${teams.length}</strong> row(s) &mdash;
+      <span style="color:var(--green);">${validCount} valid</span>
+      ${invalidCount ? `<span style="color:var(--red);margin-left:0.5rem;">${invalidCount} invalid (missing name, player 1, or PIN)</span>` : ''}
+    </p>
+    <div style="max-height:260px;overflow-y:auto;border:1px solid var(--gray-200);border-radius:var(--radius);">
+      <table style="width:100%;border-collapse:collapse;font-size:0.8125rem;">
+        <thead style="background:var(--gray-50);">
+          <tr>
+            <th style="padding:0.5rem;text-align:left;border-bottom:1px solid var(--gray-200);">Team</th>
+            <th style="padding:0.5rem;text-align:left;border-bottom:1px solid var(--gray-200);">Players</th>
+            <th style="padding:0.5rem;text-align:center;border-bottom:1px solid var(--gray-200);">PIN</th>
+            <th style="padding:0.5rem;text-align:center;border-bottom:1px solid var(--gray-200);">Hole</th>
+            <th style="padding:0.5rem;text-align:center;border-bottom:1px solid var(--gray-200);">Tee Time</th>
+            <th style="padding:0.5rem;text-align:center;border-bottom:1px solid var(--gray-200);">Status</th>
+          </tr>
+        </thead>
+        <tbody>`;
+
+  teams.forEach(t => {
+    const players    = t.players.filter(p => p).join(', ');
+    const statusColor = t.valid ? 'var(--green)' : 'var(--red)';
+    const statusText  = t.valid ? '✓' : '✗';
+    html += `
+          <tr style="border-bottom:1px solid var(--gray-100);">
+            <td style="padding:0.5rem;font-weight:600;">${escHtml(t.name)}</td>
+            <td style="padding:0.5rem;color:var(--gray-500);">${escHtml(players)}</td>
+            <td style="padding:0.5rem;text-align:center;">${escHtml(t.pin)}</td>
+            <td style="padding:0.5rem;text-align:center;">${t.startingHole}</td>
+            <td style="padding:0.5rem;text-align:center;">${escHtml(t.teeTime)}</td>
+            <td style="padding:0.5rem;text-align:center;font-weight:700;color:${statusColor};">${statusText}</td>
+          </tr>`;
+  });
+
+  html += '</tbody></table></div>';
+
+  csvPreviewContent.innerHTML = html;
+  csvPreview.style.display    = 'block';
+  csvDropArea.style.display   = 'none';
+}
+
+csvImportBtn.addEventListener('click', async () => {
+  const validTeams = csvParsedTeams.filter(t => t.valid);
+  if (validTeams.length === 0) {
+    showAlert('No valid teams to import.', 'error');
+    return;
+  }
+
+  csvImportBtn.disabled     = true;
+  csvImportBtn.textContent  = 'Importing…';
+
+  try {
+    await Promise.all(validTeams.map(team => db.ref('tournament/teams').push(team)));
+    showAlert(`Successfully imported ${validTeams.length} team(s)!`, 'success');
+    resetCsvImport();
+  } catch (err) {
+    showAlert('Error importing teams: ' + err.message, 'error');
+    csvImportBtn.disabled    = false;
+    csvImportBtn.textContent = 'Import Teams';
+  }
+});
+
+csvCancelBtn.addEventListener('click', resetCsvImport);
+
+function resetCsvImport() {
+  csvParsedTeams           = [];
+  csvFileInput.value       = '';
+  csvPreview.style.display = 'none';
+  csvDropArea.style.display = 'block';
+  csvPreviewContent.innerHTML = '';
+  csvImportBtn.disabled    = false;
+  csvImportBtn.textContent = 'Import Teams';
+}
+
 // ── Helpers ───────────────────────────────────────────────────
 function showAlert(msg, type) {
   const el = document.getElementById('admin-alert');
