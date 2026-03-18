@@ -180,12 +180,15 @@ function openScorecard(teamId, team) {
   const players = Object.values(team.players || {}).filter(p => p);
   document.getElementById('sc-players').textContent = players.join(' • ');
 
-  // Show PIN button only in view-only mode
+  // Show PIN button and banner only in view-only mode
   const pinBtn = document.getElementById('sc-pin-btn');
+  const banner = document.getElementById('view-only-banner');
   if (isViewOnly) {
     pinBtn.classList.remove('hidden');
+    banner.classList.remove('hidden');
   } else {
     pinBtn.classList.add('hidden');
+    banner.classList.add('hidden');
   }
 
   renderHoleRows(teamId, team);

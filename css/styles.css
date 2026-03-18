@@ -439,6 +439,19 @@ textarea { resize: vertical; min-height: 80px; }
   color: var(--teal);
 }
 
+.view-only-banner {
+  background: #FFF8E1;
+  border-bottom: 2px solid var(--orange);
+  color: var(--orange-dark);
+  font-size: 0.9rem;
+  font-weight: 500;
+  text-align: center;
+  padding: 0.625rem 1rem;
+  position: sticky;
+  top: 108px;
+  z-index: 40;
+}
+
 .holes-container {
   padding: 0.75rem 1rem 4rem;
   display: flex;
