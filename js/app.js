@@ -81,8 +81,8 @@ function renderLandingTeams(teams) {
   section.style.display = 'block';
 
   const sorted = Object.entries(teams).sort((a, b) => {
-    const holeA = Number(a[1].startingHole) || 1;
-    const holeB = Number(b[1].startingHole) || 1;
+    const holeA = parseInt(a[1].startingHole, 10) || 1;
+    const holeB = parseInt(b[1].startingHole, 10) || 1;
     if (holeA !== holeB) return holeA - holeB;
     const timeA = parseTeeTime(a[1].teeTime);
     const timeB = parseTeeTime(b[1].teeTime);
@@ -103,7 +103,7 @@ function renderLandingTeams(teams) {
     nameEl.textContent = team.name;
     leftEl.appendChild(nameEl);
 
-    const players = (team.players || []).filter(p => p);
+    const players = Object.values(team.players || {}).filter(p => p);
     if (players.length) {
       const playersEl = document.createElement('div');
       playersEl.className = 'landing-team-players';
@@ -174,7 +174,7 @@ async function attemptLogin() {
 function openScorecard(teamId, team) {
   document.getElementById('sc-team-name').textContent = team.name;
 
-  const players = (team.players || []).filter(p => p);
+  const players = Object.values(team.players || {}).filter(p => p);
   document.getElementById('sc-players').textContent = players.join(' • ');
 
   renderHoleRows(teamId, team);
@@ -275,7 +275,7 @@ function openLeaderboard() {
       const holesScored   = Object.values(scores).filter(s => Number(s) > 0);
       const total         = holesScored.reduce((sum, s) => sum + Number(s), 0);
       const holesComplete = holesScored.length;
-      return { id, name: team.name, players: team.players || [], total, holesComplete };
+      return { id, name: team.name, players: Object.values(team.players || {}), total, holesComplete };
     });
 
     // Sort: scored teams by total (asc), then un-scored teams alphabetically
@@ -314,7 +314,7 @@ function renderLeaderboard(rows) {
       isCurrentTeam ? 'current-team' : '',
     ].join(' ');
 
-    const players = team.players.filter(p => p).join(', ');
+    const players = team.players.filter(p => p).join(', ');  // already Object.values'd above
 
     card.innerHTML = `
       <div class="lb-rank">${displayRank}</div>
