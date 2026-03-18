@@ -62,7 +62,19 @@
                 <label for="t-date-input">Date</label>
                 <input type="date" id="t-date-input" />
               </div>
-              <div class="form-group" style="flex:1;"><!-- spacer --></div>
+              <div class="form-group">
+                <label>Number of Holes</label>
+                <div class="radio-group">
+                  <label class="radio-label">
+                    <input type="radio" name="t-holes" id="t-holes-18" value="18" checked />
+                    18 holes
+                  </label>
+                  <label class="radio-label">
+                    <input type="radio" name="t-holes" id="t-holes-9" value="9" />
+                    9 holes (Front 9)
+                  </label>
+                </div>
+              </div>
             </div>
             <div class="form-group">
               <label for="t-instructions-input">Instructions / Description</label>
@@ -95,8 +107,10 @@
           </p>
           <div class="par-nine-label">Front 9</div>
           <div class="par-grid" id="par-grid-front"></div>
-          <div class="par-nine-label" style="margin-top:0.875rem;">Back 9</div>
-          <div class="par-grid" id="par-grid-back"></div>
+          <div id="par-back-nine">
+            <div class="par-nine-label" style="margin-top:0.875rem;">Back 9</div>
+            <div class="par-grid" id="par-grid-back"></div>
+          </div>
           <button type="button" class="btn btn-primary" id="save-par-btn"
                   style="width:auto;padding:.625rem 1.75rem;margin-top:1rem;">
             Save Par Settings
@@ -250,8 +264,10 @@
       <p style="color:var(--gray-500);margin-bottom:0.5rem;">Admin score override — edit any hole directly.</p>
       <div class="par-nine-label">Front 9</div>
       <div class="override-holes-grid" id="override-grid-front"></div>
-      <div class="par-nine-label" style="margin-top:0.75rem;">Back 9</div>
-      <div class="override-holes-grid" id="override-grid-back"></div>
+      <div id="override-back-nine">
+        <div class="par-nine-label" style="margin-top:0.75rem;">Back 9</div>
+        <div class="override-holes-grid" id="override-grid-back"></div>
+      </div>
       <div style="display:flex;gap:0.75rem;margin-top:1.25rem;">
         <button class="btn btn-primary" id="override-save-btn" style="flex:1;">Save Scores</button>
         <button class="cancel-btn" id="override-cancel-btn">Cancel</button>

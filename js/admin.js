@@ -7,6 +7,7 @@ const ADMIN_PASSWORD = 'golf2024';
 let editingTeamId  = null;
 let teamsCache     = {};
 let overrideTeamId = null;
+let currentHoles   = 18;
 
 // ── Login ─────────────────────────────────────────────────────
 document.getElementById('login-form').addEventListener('submit', e => {
@@ -29,6 +30,10 @@ function initAdminData() {
     document.getElementById('t-date-input').value         = s.date         || '';
     document.getElementById('t-instructions-input').value = s.instructions || '';
     document.getElementById('t-locked-input').checked     = s.locked       || false;
+    currentHoles = s.holes || 18;
+    const holesRadio = document.querySelector(`input[name="t-holes"][value="${currentHoles}"]`);
+    if (holesRadio) holesRadio.checked = true;
+    applyHoleSetting(currentHoles);
     renderParGrid(s.par || {});
   });
 
@@ -44,15 +49,28 @@ function initAdminData() {
 // ── Tournament settings form ──────────────────────────────────
 document.getElementById('settings-form').addEventListener('submit', e => {
   e.preventDefault();
+  const selectedHoles = parseInt(document.querySelector('input[name="t-holes"]:checked')?.value, 10) || 18;
   const updates = {
     'tournament/settings/name':         document.getElementById('t-name-input').value.trim(),
     'tournament/settings/date':         document.getElementById('t-date-input').value,
     'tournament/settings/instructions': document.getElementById('t-instructions-input').value.trim(),
     'tournament/settings/locked':       document.getElementById('t-locked-input').checked,
+    'tournament/settings/holes':        selectedHoles,
   };
   db.ref().update(updates)
     .then(() => showAlert('Settings saved!', 'success'))
     .catch(err => showAlert('Error saving settings: ' + err.message, 'error'));
+});
+
+// ── Hole count ────────────────────────────────────────────────
+function applyHoleSetting(holes) {
+  currentHoles = holes;
+  const backSection = document.getElementById('par-back-nine');
+  if (backSection) backSection.style.display = holes === 9 ? 'none' : '';
+}
+
+document.querySelectorAll('input[name="t-holes"]').forEach(radio => {
+  radio.addEventListener('change', () => applyHoleSetting(parseInt(radio.value, 10)));
 });
 
 // ── Par settings ──────────────────────────────────────────────
@@ -79,7 +97,7 @@ function renderParGrid(parData) {
 
 function getParFromInputs() {
   const par = {};
-  for (let h = 1; h <= 18; h++) {
+  for (let h = 1; h <= currentHoles; h++) {
     const val = parseInt(document.getElementById(`par-hole-${h}`)?.value, 10);
     par[`hole${h}`] = (val >= 3 && val <= 5) ? val : 4;
   }
@@ -94,7 +112,7 @@ document.getElementById('save-par-btn')?.addEventListener('click', () => {
 });
 
 document.getElementById('reset-par-btn')?.addEventListener('click', () => {
-  for (let h = 1; h <= 18; h++) {
+  for (let h = 1; h <= currentHoles; h++) {
     const input = document.getElementById(`par-hole-${h}`);
     if (input) input.value = 4;
   }
@@ -174,7 +192,7 @@ function renderTeamsList(teams) {
     const total         = holesScored.reduce((sum, s) => sum + Number(s), 0);
     const holesComplete = holesScored.length;
     const players       = (team.players || []).filter(p => p);
-    const isComplete    = holesComplete === 18;
+    const isComplete    = holesComplete === currentHoles;
 
     const card = document.createElement('div');
     card.className = 'team-card';
@@ -191,7 +209,7 @@ function renderTeamsList(teams) {
         </div>
         ${players.length ? `<div class="team-card-players">${players.map(escHtml).join(', ')}</div>` : ''}
         <div class="team-card-score">
-          ${holesComplete}/18 holes &nbsp;|&nbsp; Total: ${total || '—'}
+          ${holesComplete}/${currentHoles} holes &nbsp;|&nbsp; Total: ${total || '—'}
         </div>
       </div>
       <div class="team-card-actions">
@@ -269,7 +287,7 @@ function openScoreOverride(teamId) {
   front.innerHTML = '';
   back.innerHTML  = '';
 
-  for (let h = 1; h <= 18; h++) {
+  for (let h = 1; h <= currentHoles; h++) {
     const score = team.scores?.[`hole${h}`] ?? '';
     const div   = document.createElement('div');
     div.className = 'par-hole-cell';
@@ -282,13 +300,16 @@ function openScoreOverride(teamId) {
     else        back.appendChild(div);
   }
 
+  const overrideBack = document.getElementById('override-back-nine');
+  if (overrideBack) overrideBack.style.display = currentHoles === 9 ? 'none' : '';
+
   document.getElementById('score-override-modal').classList.remove('hidden');
 }
 
 document.getElementById('override-save-btn')?.addEventListener('click', async () => {
   if (!overrideTeamId) return;
   const scores = {};
-  for (let h = 1; h <= 18; h++) {
+  for (let h = 1; h <= currentHoles; h++) {
     const val = parseInt(document.getElementById(`override-hole-${h}`)?.value, 10);
     if (!isNaN(val) && val >= 1) scores[`hole${h}`] = val;
   }

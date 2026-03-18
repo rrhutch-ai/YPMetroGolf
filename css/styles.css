@@ -1161,6 +1161,28 @@ textarea { resize: vertical; min-height: 80px; }
 .lock-toggle-label { font-size: 0.9rem; font-weight: 600; color: #991B1B; cursor: pointer; }
 .lock-toggle-sub   { font-size: 0.8rem; color: var(--gray-500); margin-top: 0.125rem; }
 
+.radio-group {
+  display: flex;
+  gap: 1rem;
+  padding-top: 0.375rem;
+}
+.radio-label {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--gray-700);
+  cursor: pointer;
+}
+.radio-label input[type="radio"] {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--teal);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
 @media (max-width: 520px) {
   .par-grid, .override-holes-grid { grid-template-columns: repeat(6, 1fr); }
 }

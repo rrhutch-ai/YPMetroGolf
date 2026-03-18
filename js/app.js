@@ -9,6 +9,7 @@ let teamsListener   = null;
 let isViewOnly      = true;
 let currentPar      = {};
 let isLocked        = false;
+let holeCount       = 18;
 let scorecardOrigin = 'landing';
 let allTeams        = {};
 
@@ -46,6 +47,7 @@ function loadSettings() {
 
     currentPar = s.par    || {};
     isLocked   = s.locked || false;
+    holeCount  = s.holes  || 18;
 
     // Re-render landing teams with updated par/progress
     if (Object.keys(allTeams).length) renderLandingTeams(allTeams);
@@ -251,7 +253,7 @@ function updateScorecardBanners() {
 
 function updateHoleInputLockState() {
   const shouldDisable = isViewOnly || isLocked;
-  for (let h = 1; h <= 18; h++) {
+  for (let h = 1; h <= holeCount; h++) {
     const input = document.getElementById(`hole-input-${h}`);
     if (!input) continue;
     input.disabled = shouldDisable;
@@ -266,7 +268,7 @@ function renderHoleRows(teamId, team) {
   container.innerHTML = '';
   const shouldDisable = isViewOnly || isLocked;
 
-  for (let h = 1; h <= 18; h++) {
+  for (let h = 1; h <= holeCount; h++) {
     const isStart = Number(team.startingHole) === h;
     const par     = currentPar[`hole${h}`];
     const row     = document.createElement('div');
@@ -319,7 +321,7 @@ function renderHoleRows(teamId, team) {
 }
 
 function syncInputsToScores(scores) {
-  for (let h = 1; h <= 18; h++) {
+  for (let h = 1; h <= holeCount; h++) {
     const input = document.getElementById(`hole-input-${h}`);
     if (!input || input === document.activeElement) continue;
     const val = scores[`hole${h}`];
@@ -343,7 +345,7 @@ function applyScoreClass(input, score, holeNum) {
 
 function getCurrentScoresFromInputs() {
   const scores = {};
-  for (let h = 1; h <= 18; h++) {
+  for (let h = 1; h <= holeCount; h++) {
     const val = document.getElementById(`hole-input-${h}`)?.value;
     if (val !== '' && val != null) scores[`hole${h}`] = Number(val);
   }
@@ -409,7 +411,7 @@ function openLeaderboard() {
       const scoredKeys    = Object.keys(scores).filter(k => Number(scores[k]) > 0);
       const total         = scoredKeys.reduce((sum, k) => sum + Number(scores[k]), 0);
       const holesComplete = scoredKeys.length;
-      const isComplete    = holesComplete === 18;
+      const isComplete    = holesComplete === holeCount;
       const parForScored  = scoredKeys.reduce((sum, k) => sum + (currentPar[k] || 0), 0);
       const relScore      = (hasPar && parForScored > 0) ? total - parForScored : null;
       const players       = Object.values(team.players || {});
@@ -482,7 +484,7 @@ function renderLeaderboard(rows) {
           ${team.isComplete ? '<span class="done-badge">✓ DONE</span>' : ''}
         </div>
         ${players ? `<div class="lb-players">${players}</div>` : ''}
-        <div class="lb-holes">${team.holesComplete} / 18 holes scored</div>
+        <div class="lb-holes">${team.holesComplete} / ${holeCount} holes scored</div>
       </div>
       <div class="lb-score">${scoreMainHtml}${scoreSubHtml}</div>
     `;
