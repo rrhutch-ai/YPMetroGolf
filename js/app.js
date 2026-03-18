@@ -81,6 +81,9 @@ function renderLandingTeams(teams) {
   section.style.display = 'block';
 
   const sorted = Object.entries(teams).sort((a, b) => {
+    const holeA = Number(a[1].startingHole) || 1;
+    const holeB = Number(b[1].startingHole) || 1;
+    if (holeA !== holeB) return holeA - holeB;
     const timeA = parseTeeTime(a[1].teeTime);
     const timeB = parseTeeTime(b[1].teeTime);
     if (timeA !== timeB) return timeA - timeB;
@@ -92,9 +95,21 @@ function renderLandingTeams(teams) {
     const row = document.createElement('div');
     row.className = 'landing-team-row';
 
+    const leftEl = document.createElement('div');
+    leftEl.className = 'landing-team-left';
+
     const nameEl = document.createElement('div');
     nameEl.className = 'landing-team-name';
     nameEl.textContent = team.name;
+    leftEl.appendChild(nameEl);
+
+    const players = (team.players || []).filter(p => p);
+    if (players.length) {
+      const playersEl = document.createElement('div');
+      playersEl.className = 'landing-team-players';
+      playersEl.textContent = players.join(', ');
+      leftEl.appendChild(playersEl);
+    }
 
     const detailsEl = document.createElement('div');
     detailsEl.className = 'landing-team-details';
@@ -111,7 +126,7 @@ function renderLandingTeams(teams) {
       detailsEl.appendChild(timeEl);
     }
 
-    row.appendChild(nameEl);
+    row.appendChild(leftEl);
     row.appendChild(detailsEl);
     list.appendChild(row);
   });
