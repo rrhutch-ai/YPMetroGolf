@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tournament Admin</title>
+  <link rel="stylesheet" href="../css/styles.css" />
+</head>
+<body>
+
+  <!-- ============================================================
+       LOGIN VIEW
+       ============================================================ -->
+  <div id="login-view" class="admin-login-wrapper">
+    <div class="admin-login-card">
+      <div class="logo-area">
+        <div class="logo-icon">⛳</div>
+        <h1>Tournament Admin</h1>
+        <p>Enter your admin password to continue</p>
+      </div>
+
+      <form id="login-form" novalidate>
+        <div class="form-group">
+          <label for="admin-password">Password</label>
+          <input type="password" id="admin-password" placeholder="Enter admin password"
+                 autocomplete="current-password" required />
+        </div>
+        <p class="error-msg" id="login-error"></p>
+        <button type="submit" class="btn btn-primary">Sign In</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       ADMIN DASHBOARD VIEW
+       ============================================================ -->
+  <div id="admin-view" class="hidden">
+
+    <div class="admin-header-bar">
+      <h1>⛳ Tournament Admin</h1>
+      <span class="admin-badge">ADMIN</span>
+    </div>
+
+    <div id="admin-content" style="max-width:760px;margin:0 auto;padding:1.5rem 1rem 4rem;">
+
+      <!-- Global alert -->
+      <div id="admin-alert" class="alert hidden"></div>
+
+      <!-- ── Tournament Settings ── -->
+      <div class="section-card">
+        <div class="section-header">
+          <h2>🏆 Tournament Settings</h2>
+        </div>
+        <div class="section-body">
+          <form id="settings-form" novalidate>
+            <div class="form-group">
+              <label for="t-name-input">Tournament Name</label>
+              <input type="text" id="t-name-input" placeholder="e.g. Annual Charity Golf Classic" />
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label for="t-date-input">Date</label>
+                <input type="date" id="t-date-input" />
+              </div>
+              <div class="form-group" style="flex:1;"><!-- spacer --></div>
+            </div>
+            <div class="form-group">
+              <label for="t-instructions-input">Instructions / Description</label>
+              <textarea id="t-instructions-input"
+                        placeholder="Rules, format notes, or any info players should see on the landing page..."></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary" style="width:auto;padding:.625rem 1.75rem;">
+              Save Settings
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <!-- ── Add / Edit Team ── -->
+      <div class="section-card">
+        <div class="section-header">
+          <h2 id="team-form-title">➕ Add Team</h2>
+        </div>
+        <div class="section-body">
+          <form id="team-form" novalidate>
+
+            <div class="form-group">
+              <label for="f-team-name">Team Name *</label>
+              <input type="text" id="f-team-name" placeholder="e.g. The Eagles" required />
+            </div>
+
+            <div class="player-grid">
+              <div class="form-group">
+                <label for="f-p1">Player 1 *</label>
+                <input type="text" id="f-p1" placeholder="Full name" required />
+              </div>
+              <div class="form-group">
+                <label for="f-p2">Player 2</label>
+                <input type="text" id="f-p2" placeholder="Full name" />
+              </div>
+              <div class="form-group">
+                <label for="f-p3">Player 3</label>
+                <input type="text" id="f-p3" placeholder="Full name" />
+              </div>
+              <div class="form-group">
+                <label for="f-p4">Player 4</label>
+                <input type="text" id="f-p4" placeholder="Full name" />
+              </div>
+            </div>
+
+            <hr class="form-divider" />
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="f-pin">PIN (4–6 digits) *</label>
+                <input type="tel" id="f-pin" placeholder="e.g. 1234"
+                       maxlength="6" inputmode="numeric" pattern="[0-9]*" required />
+              </div>
+              <div class="form-group">
+                <label for="f-starting-hole">Starting Hole</label>
+                <select id="f-starting-hole">
+                  <option value="1">Hole 1</option>
+                  <option value="2">Hole 2</option>
+                  <option value="3">Hole 3</option>
+                  <option value="4">Hole 4</option>
+                  <option value="5">Hole 5</option>
+                  <option value="6">Hole 6</option>
+                  <option value="7">Hole 7</option>
+                  <option value="8">Hole 8</option>
+                  <option value="9">Hole 9</option>
+                  <option value="10">Hole 10</option>
+                  <option value="11">Hole 11</option>
+                  <option value="12">Hole 12</option>
+                  <option value="13">Hole 13</option>
+                  <option value="14">Hole 14</option>
+                  <option value="15">Hole 15</option>
+                  <option value="16">Hole 16</option>
+                  <option value="17">Hole 17</option>
+                  <option value="18">Hole 18</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="f-tee-time">Tee Time</label>
+              <input type="time" id="f-tee-time" />
+            </div>
+
+            <div class="form-actions">
+              <button type="submit" class="btn btn-primary" id="team-submit-btn">Add Team</button>
+              <button type="button" class="cancel-btn hidden" id="cancel-edit-btn">Cancel</button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- ── Teams List ── -->
+      <div class="section-card">
+        <div class="section-header">
+          <h2>👥 Registered Teams</h2>
+          <span id="teams-count" style="font-size:.875rem;color:var(--gray-500);"></span>
+        </div>
+        <div class="section-body">
+          <div id="teams-list" class="teams-list">
+            <p class="empty-state">No teams yet. Add one above.</p>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /admin-content -->
+  </div><!-- /admin-view -->
+
+  <!-- Firebase SDKs (compat) -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-database-compat.js"></script>
+  <script src="../js/firebase-config.js"></script>
+  <script src="../js/admin.js"></script>
+</body>
+</html>

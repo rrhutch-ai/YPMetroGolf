@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Golf Tournament Scorer</title>
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+
+  <!-- ============================================================
+       LANDING VIEW
+       ============================================================ -->
+  <div id="landing-view">
+    <div id="landing-content" style="max-width:480px;margin:0 auto;padding:1.5rem 1rem 2rem;">
+
+      <div class="tournament-banner">
+        <h1 id="t-name">Loading...</h1>
+        <p class="t-date" id="t-date"></p>
+        <div class="t-instructions" id="t-instructions" style="display:none;"></div>
+      </div>
+
+      <div class="login-card">
+        <h2>Enter Scorecard</h2>
+
+        <div class="form-group">
+          <label for="team-select">Your Team</label>
+          <select id="team-select">
+            <option value="">— Select your team —</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="pin-input">PIN</label>
+          <div class="pin-input-wrapper">
+            <input type="tel" id="pin-input" placeholder="• • • •" maxlength="6"
+                   inputmode="numeric" pattern="[0-9]*" autocomplete="off" />
+          </div>
+        </div>
+
+        <p class="error-msg" id="login-error"></p>
+        <button class="btn btn-primary" id="login-btn">Go to My Scorecard</button>
+      </div>
+
+      <button class="leaderboard-link-btn" id="leaderboard-btn">
+        🏆 View Leaderboard
+      </button>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       SCORECARD VIEW
+       ============================================================ -->
+  <div id="scorecard-view" class="hidden">
+
+    <div class="app-header">
+      <button class="back-btn" id="sc-back-btn">← Back</button>
+      <h1 id="sc-team-name">Scorecard</h1>
+      <button class="header-action" id="sc-leaderboard-btn">🏆 Board</button>
+    </div>
+
+    <div class="score-summary-bar">
+      <div class="team-players" id="sc-players"></div>
+      <div class="total-score">
+        Total: <span id="running-total">—</span>
+      </div>
+    </div>
+
+    <div class="holes-container" id="scorecard-holes"></div>
+  </div>
+
+  <!-- ============================================================
+       LEADERBOARD VIEW
+       ============================================================ -->
+  <div id="leaderboard-view" class="hidden">
+
+    <div class="app-header">
+      <button class="back-btn" id="lb-back-btn">← Back</button>
+      <h1>Leaderboard</h1>
+    </div>
+
+    <div class="lb-live-badge">
+      <div class="lb-live-dot"></div> Live scores
+    </div>
+
+    <div class="leaderboard-container" id="leaderboard-list"></div>
+  </div>
+
+  <!-- Firebase SDKs (compat) -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-database-compat.js"></script>
+  <script src="js/firebase-config.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

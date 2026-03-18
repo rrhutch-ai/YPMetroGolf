@@ -1,0 +1,785 @@
+/* ============================================================
+   CSS VARIABLES & RESET
+   ============================================================ */
+:root {
+  --teal:        #1B6B7A;
+  --teal-dark:   #145460;
+  --teal-light:  #2A8A9E;
+  --orange:      #D97706;
+  --orange-dark: #B45309;
+  --orange-light:#F59E0B;
+  --white:       #FFFFFF;
+  --gray-50:     #F9FAFB;
+  --gray-100:    #F3F4F6;
+  --gray-200:    #E5E7EB;
+  --gray-300:    #D1D5DB;
+  --gray-500:    #6B7280;
+  --gray-700:    #374151;
+  --gray-900:    #111827;
+  --red:         #DC2626;
+  --green:       #16A34A;
+  --shadow-sm:   0 1px 2px rgba(0,0,0,0.05);
+  --shadow:      0 2px 8px rgba(0,0,0,0.10);
+  --shadow-lg:   0 8px 24px rgba(0,0,0,0.12);
+  --radius:      10px;
+  --radius-lg:   16px;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: var(--gray-100);
+  color: var(--gray-900);
+  line-height: 1.5;
+  min-height: 100vh;
+}
+
+.hidden { display: none !important; }
+
+/* ============================================================
+   SHARED COMPONENTS
+   ============================================================ */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.625rem 1.25rem;
+  border-radius: var(--radius);
+  border: none;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+  text-decoration: none;
+  gap: 0.375rem;
+}
+.btn:active { transform: scale(0.97); }
+
+.btn-primary {
+  background: var(--teal);
+  color: var(--white);
+  width: 100%;
+  padding: 0.875rem;
+  font-size: 1rem;
+}
+.btn-primary:hover { background: var(--teal-dark); }
+
+.btn-accent {
+  background: var(--orange);
+  color: var(--white);
+}
+.btn-accent:hover { background: var(--orange-dark); }
+
+.btn-ghost {
+  background: transparent;
+  color: var(--teal);
+  border: 2px solid var(--teal);
+}
+.btn-ghost:hover { background: var(--teal); color: var(--white); }
+
+.btn-sm {
+  padding: 0.375rem 0.75rem;
+  font-size: 0.8125rem;
+}
+
+.btn-danger {
+  background: var(--red);
+  color: var(--white);
+}
+.btn-danger:hover { background: #b91c1c; }
+
+.card {
+  background: var(--white);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow);
+  padding: 1.5rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+  margin-bottom: 1rem;
+}
+
+label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--gray-700);
+}
+
+input[type="text"],
+input[type="number"],
+input[type="password"],
+input[type="date"],
+input[type="time"],
+select,
+textarea {
+  padding: 0.625rem 0.875rem;
+  border: 1.5px solid var(--gray-200);
+  border-radius: var(--radius);
+  font-size: 1rem;
+  color: var(--gray-900);
+  background: var(--white);
+  transition: border-color 0.15s;
+  width: 100%;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  outline: none;
+  border-color: var(--teal);
+  box-shadow: 0 0 0 3px rgba(27,107,122,0.12);
+}
+
+textarea { resize: vertical; min-height: 80px; }
+
+.error-msg {
+  color: var(--red);
+  font-size: 0.875rem;
+  min-height: 1.25rem;
+}
+
+.alert {
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius);
+  font-size: 0.9375rem;
+  font-weight: 500;
+  margin-bottom: 1rem;
+}
+.alert-success { background: #D1FAE5; color: #065F46; border: 1px solid #6EE7B7; }
+.alert-error   { background: #FEE2E2; color: #991B1B; border: 1px solid #FCA5A5; }
+
+.empty-state {
+  text-align: center;
+  color: var(--gray-500);
+  padding: 2rem;
+  font-size: 0.9375rem;
+}
+
+/* ============================================================
+   PAGE HEADER
+   ============================================================ */
+.app-header {
+  background: var(--teal);
+  color: var(--white);
+  padding: 1rem 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: var(--shadow);
+}
+
+.app-header h1 {
+  font-size: 1.125rem;
+  font-weight: 700;
+  flex: 1;
+}
+
+.app-header .back-btn {
+  background: rgba(255,255,255,0.15);
+  border: none;
+  color: white;
+  padding: 0.4rem 0.75rem;
+  border-radius: var(--radius);
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+  white-space: nowrap;
+}
+.app-header .back-btn:hover { background: rgba(255,255,255,0.25); }
+
+.app-header .header-action {
+  background: var(--orange);
+  border: none;
+  color: white;
+  padding: 0.4rem 0.75rem;
+  border-radius: var(--radius);
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+  white-space: nowrap;
+}
+.app-header .header-action:hover { background: var(--orange-dark); }
+
+/* ============================================================
+   PLAYER APP — LANDING VIEW
+   ============================================================ */
+#landing-view {
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 1.5rem 1rem 2rem;
+}
+
+.tournament-banner {
+  background: linear-gradient(135deg, var(--teal) 0%, var(--teal-light) 100%);
+  color: white;
+  border-radius: var(--radius-lg);
+  padding: 1.75rem 1.5rem;
+  margin-bottom: 1.25rem;
+  text-align: center;
+  box-shadow: var(--shadow-lg);
+}
+
+.tournament-banner h1 {
+  font-size: 1.625rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  margin-bottom: 0.375rem;
+}
+
+.tournament-banner .t-date {
+  font-size: 0.9375rem;
+  opacity: 0.85;
+  margin-bottom: 1rem;
+}
+
+.tournament-banner .t-instructions {
+  font-size: 0.9rem;
+  opacity: 0.9;
+  background: rgba(255,255,255,0.12);
+  border-radius: var(--radius);
+  padding: 0.75rem 1rem;
+  text-align: left;
+  line-height: 1.6;
+}
+
+.login-card {
+  background: var(--white);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow);
+  padding: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.login-card h2 {
+  font-size: 1.125rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  color: var(--gray-700);
+}
+
+.pin-input-wrapper {
+  position: relative;
+}
+
+.pin-input-wrapper input {
+  letter-spacing: 0.25em;
+  font-size: 1.25rem;
+  font-weight: 700;
+  text-align: center;
+}
+
+.leaderboard-link-btn {
+  width: 100%;
+  padding: 0.75rem;
+  background: transparent;
+  border: 2px solid var(--teal);
+  color: var(--teal);
+  border-radius: var(--radius);
+  font-size: 0.9375rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+.leaderboard-link-btn:hover { background: var(--teal); color: white; }
+
+/* ============================================================
+   PLAYER APP — SCORECARD VIEW
+   ============================================================ */
+#scorecard-view { max-width: 480px; margin: 0 auto; }
+
+.score-summary-bar {
+  background: var(--white);
+  border-bottom: 1px solid var(--gray-200);
+  padding: 0.875rem 1.25rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: sticky;
+  top: 57px;
+  z-index: 50;
+}
+
+.score-summary-bar .team-players {
+  font-size: 0.8125rem;
+  color: var(--gray-500);
+  flex: 1;
+}
+
+.score-summary-bar .total-score {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--gray-700);
+}
+
+.score-summary-bar .total-score span {
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: var(--teal);
+}
+
+.holes-container {
+  padding: 0.75rem 1rem 4rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.hole-row {
+  background: var(--white);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+  padding: 0.75rem 1rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  border: 1.5px solid transparent;
+  transition: border-color 0.15s;
+}
+
+.hole-row.starting-hole {
+  border-color: var(--orange);
+  background: #FFFBEB;
+}
+
+.hole-row:has(input:focus) {
+  border-color: var(--teal);
+}
+
+.hole-left {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  flex: 1;
+}
+
+.hole-num-circle {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: var(--teal);
+  color: white;
+  font-weight: 700;
+  font-size: 0.9375rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.hole-row.starting-hole .hole-num-circle {
+  background: var(--orange);
+}
+
+.hole-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+}
+
+.hole-label {
+  font-size: 0.75rem;
+  color: var(--gray-500);
+  line-height: 1;
+}
+
+.start-badge {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  background: var(--orange);
+  color: white;
+  padding: 0.125rem 0.375rem;
+  border-radius: 4px;
+  letter-spacing: 0.05em;
+}
+
+.hole-score-input {
+  width: 72px;
+  height: 48px;
+  text-align: center;
+  font-size: 1.375rem;
+  font-weight: 700;
+  color: var(--teal-dark);
+  border: 1.5px solid var(--gray-200);
+  border-radius: var(--radius);
+  background: var(--gray-50);
+  -moz-appearance: textfield;
+}
+
+.hole-score-input::-webkit-outer-spin-button,
+.hole-score-input::-webkit-inner-spin-button { -webkit-appearance: none; }
+
+.hole-score-input:focus {
+  outline: none;
+  border-color: var(--teal);
+  background: white;
+  box-shadow: 0 0 0 3px rgba(27,107,122,0.12);
+}
+
+.hole-score-input.has-score {
+  background: white;
+  color: var(--teal-dark);
+}
+
+/* ============================================================
+   PLAYER APP — LEADERBOARD VIEW
+   ============================================================ */
+#leaderboard-view { max-width: 480px; margin: 0 auto; }
+
+.leaderboard-container {
+  padding: 1rem 1rem 4rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+}
+
+.leaderboard-card {
+  background: var(--white);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+  padding: 0.875rem 1rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  border: 1.5px solid transparent;
+}
+
+.leaderboard-card.leader {
+  border-color: var(--orange);
+  background: #FFFBEB;
+}
+
+.leaderboard-card.current-team {
+  border-color: var(--teal);
+}
+
+.leaderboard-card.leader.current-team {
+  border-color: var(--orange);
+}
+
+.lb-rank {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: var(--gray-300);
+  width: 32px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.leaderboard-card.leader .lb-rank { color: var(--orange); }
+
+.lb-info { flex: 1; min-width: 0; }
+
+.lb-team-name {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--gray-900);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.you-badge {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  background: var(--teal);
+  color: white;
+  padding: 0.125rem 0.375rem;
+  border-radius: 4px;
+  letter-spacing: 0.05em;
+}
+
+.lb-players {
+  font-size: 0.8125rem;
+  color: var(--gray-500);
+  margin-top: 0.125rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.lb-holes {
+  font-size: 0.75rem;
+  color: var(--gray-400);
+  margin-top: 0.25rem;
+}
+
+.lb-score {
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: var(--teal);
+  flex-shrink: 0;
+  min-width: 48px;
+  text-align: right;
+}
+
+.leaderboard-card.leader .lb-score { color: var(--orange); }
+
+.lb-live-badge {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--green);
+  padding: 0 1rem 0.5rem;
+}
+
+.lb-live-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--green);
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+/* ============================================================
+   ADMIN — LOGIN
+   ============================================================ */
+.admin-login-wrapper {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background: linear-gradient(135deg, var(--teal-dark) 0%, var(--teal-light) 100%);
+}
+
+.admin-login-card {
+  background: var(--white);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  padding: 2rem 1.75rem;
+  width: 100%;
+  max-width: 380px;
+}
+
+.admin-login-card .logo-area {
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.admin-login-card .logo-icon {
+  font-size: 2.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.admin-login-card h1 {
+  font-size: 1.375rem;
+  font-weight: 800;
+  color: var(--teal);
+  margin-bottom: 0.25rem;
+}
+
+.admin-login-card p {
+  font-size: 0.875rem;
+  color: var(--gray-500);
+}
+
+/* ============================================================
+   ADMIN — DASHBOARD
+   ============================================================ */
+#admin-view {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 1.5rem 1rem 4rem;
+}
+
+.admin-header-bar {
+  background: var(--teal);
+  color: white;
+  padding: 1rem 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: var(--shadow);
+}
+
+.admin-header-bar h1 {
+  font-size: 1.125rem;
+  font-weight: 700;
+}
+
+.admin-header-bar .admin-badge {
+  font-size: 0.75rem;
+  background: var(--orange);
+  color: white;
+  padding: 0.25rem 0.625rem;
+  border-radius: 20px;
+  font-weight: 700;
+}
+
+.section-card {
+  background: var(--white);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow);
+  margin-bottom: 1.25rem;
+  overflow: hidden;
+}
+
+.section-header {
+  background: var(--gray-50);
+  border-bottom: 1px solid var(--gray-200);
+  padding: 1rem 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.section-header h2 {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--teal);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.section-body { padding: 1.25rem; }
+
+.player-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+@media (max-width: 480px) {
+  .player-grid,
+  .form-row { grid-template-columns: 1fr; }
+}
+
+.team-card {
+  background: var(--white);
+  border: 1.5px solid var(--gray-200);
+  border-radius: var(--radius);
+  padding: 1rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  transition: border-color 0.15s;
+}
+
+.team-card:hover { border-color: var(--teal); }
+
+.team-card-info { flex: 1; min-width: 0; }
+
+.team-card-name {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--gray-900);
+  margin-bottom: 0.25rem;
+}
+
+.team-card-meta {
+  font-size: 0.8125rem;
+  color: var(--gray-500);
+  margin-bottom: 0.25rem;
+}
+
+.team-card-players {
+  font-size: 0.8125rem;
+  color: var(--gray-600);
+}
+
+.team-card-score {
+  font-size: 0.75rem;
+  color: var(--teal);
+  font-weight: 600;
+  margin-top: 0.375rem;
+}
+
+.team-card-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+  flex-shrink: 0;
+}
+
+.teams-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+}
+
+.btn-edit {
+  padding: 0.375rem 0.75rem;
+  background: var(--teal);
+  color: white;
+  border: none;
+  border-radius: var(--radius);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.btn-edit:hover { background: var(--teal-dark); }
+
+.btn-delete {
+  padding: 0.375rem 0.75rem;
+  background: transparent;
+  color: var(--red);
+  border: 1.5px solid var(--red);
+  border-radius: var(--radius);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.btn-delete:hover { background: var(--red); color: white; }
+
+.form-actions {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+.form-actions .btn-primary { flex: 1; }
+
+.cancel-btn {
+  padding: 0.625rem 1rem;
+  background: var(--gray-100);
+  border: 1.5px solid var(--gray-300);
+  border-radius: var(--radius);
+  font-size: 0.9375rem;
+  font-weight: 600;
+  cursor: pointer;
+  color: var(--gray-700);
+  transition: all 0.15s;
+}
+.cancel-btn:hover { background: var(--gray-200); }
+
+.form-divider {
+  border: none;
+  border-top: 1px solid var(--gray-200);
+  margin: 1rem 0;
+}
