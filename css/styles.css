@@ -201,7 +201,7 @@ textarea { resize: vertical; min-height: 80px; }
 .sc-header-actions {
   display: flex;
   gap: 0.5rem;
-  justify-content: center;
+  justify-content: space-between;
 }
 
 .app-header .back-btn {
