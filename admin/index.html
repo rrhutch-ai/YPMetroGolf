@@ -197,8 +197,40 @@
         </div>
       </div>
 
+      <!-- ── Danger Zone ── -->
+      <div class="section-card" style="border:1.5px solid var(--red);">
+        <div class="section-header" style="background:#FEF2F2;border-bottom-color:#FCA5A5;">
+          <h2 style="color:var(--red);">⚠️ Danger Zone</h2>
+        </div>
+        <div class="section-body">
+          <p style="font-size:0.875rem;color:var(--gray-700);margin-bottom:1rem;">
+            Permanently delete all teams and scores. Tournament settings (name, date, instructions) will be preserved. This cannot be undone.
+          </p>
+          <button class="btn btn-danger" id="clear-data-btn" style="width:auto;padding:.625rem 1.75rem;">
+            Clear All Teams &amp; Scores
+          </button>
+        </div>
+      </div>
+
     </div><!-- /admin-content -->
   </div><!-- /admin-view -->
+
+  <!-- Clear Data Modal -->
+  <div id="clear-data-modal" class="modal-overlay hidden">
+    <div class="modal-card">
+      <h3>⚠️ Clear All Teams &amp; Scores</h3>
+      <p>This will permanently delete all teams and every score recorded. This <strong>cannot be undone</strong>.</p>
+      <p style="margin-top:0.5rem;">Enter the admin password to confirm:</p>
+      <div class="form-group" style="margin-top:0.75rem;">
+        <input type="password" id="clear-confirm-password" placeholder="Admin password" autocomplete="off" />
+      </div>
+      <p class="error-msg" id="clear-error"></p>
+      <div style="display:flex;gap:0.75rem;margin-top:0.25rem;">
+        <button class="btn btn-danger" id="clear-confirm-btn" style="flex:1;">Delete Everything</button>
+        <button class="cancel-btn" id="clear-cancel-btn">Cancel</button>
+      </div>
+    </div>
+  </div>
 
   <!-- Firebase SDKs (compat) -->
   <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>

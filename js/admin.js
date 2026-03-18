@@ -312,48 +312,92 @@ function parseCsv(text) {
   }).filter(t => t.name);
 }
 
+function buildCsvDiff(csvTeams) {
+  // Map existing teams by lowercase name for matching
+  const existingByName = {};
+  Object.entries(teamsCache).forEach(([id, team]) => {
+    existingByName[team.name.toLowerCase()] = { id, team };
+  });
+
+  const csvNames = new Set();
+  const toAdd    = [];
+  const toUpdate = [];
+
+  csvTeams.filter(t => t.valid).forEach(t => {
+    const key = t.name.toLowerCase();
+    csvNames.add(key);
+    if (existingByName[key]) {
+      toUpdate.push({ csvTeam: t, existing: existingByName[key] });
+    } else {
+      toAdd.push(t);
+    }
+  });
+
+  const toRemove = Object.entries(teamsCache).filter(([, team]) =>
+    !csvNames.has(team.name.toLowerCase())
+  );
+
+  return { toAdd, toUpdate, toRemove };
+}
+
 function renderCsvPreview(teams) {
   if (teams.length === 0) {
     showAlert('No rows found in CSV.', 'error');
     return;
   }
 
-  const validCount   = teams.filter(t => t.valid).length;
-  const invalidCount = teams.length - validCount;
+  const { toAdd, toUpdate, toRemove } = buildCsvDiff(teams);
+  const invalidCount = teams.filter(t => !t.valid).length;
 
-  let html = `
-    <p style="font-size:0.875rem;margin-bottom:0.75rem;color:var(--gray-700);">
-      Found <strong>${teams.length}</strong> row(s) &mdash;
-      <span style="color:var(--green);">${validCount} valid</span>
-      ${invalidCount ? `<span style="color:var(--red);margin-left:0.5rem;">${invalidCount} invalid (missing name, player 1, or PIN)</span>` : ''}
-    </p>
+  let summary = `<p style="font-size:0.875rem;margin-bottom:0.75rem;color:var(--gray-700);">`;
+  if (toAdd.length)    summary += `<span style="color:var(--green);margin-right:1rem;">➕ ${toAdd.length} add</span>`;
+  if (toUpdate.length) summary += `<span style="color:var(--teal);margin-right:1rem;">✏️ ${toUpdate.length} update</span>`;
+  if (toRemove.length) summary += `<span style="color:var(--orange);margin-right:1rem;">🗑️ ${toRemove.length} remove</span>`;
+  if (invalidCount)    summary += `<span style="color:var(--red);">✗ ${invalidCount} invalid (skipped)</span>`;
+  summary += `</p>`;
+
+  let html = summary + `
     <div style="max-height:260px;overflow-y:auto;border:1px solid var(--gray-200);border-radius:var(--radius);">
       <table style="width:100%;border-collapse:collapse;font-size:0.8125rem;">
         <thead style="background:var(--gray-50);">
           <tr>
+            <th style="padding:0.5rem;text-align:left;border-bottom:1px solid var(--gray-200);">Action</th>
             <th style="padding:0.5rem;text-align:left;border-bottom:1px solid var(--gray-200);">Team</th>
             <th style="padding:0.5rem;text-align:left;border-bottom:1px solid var(--gray-200);">Players</th>
-            <th style="padding:0.5rem;text-align:center;border-bottom:1px solid var(--gray-200);">PIN</th>
             <th style="padding:0.5rem;text-align:center;border-bottom:1px solid var(--gray-200);">Hole</th>
             <th style="padding:0.5rem;text-align:center;border-bottom:1px solid var(--gray-200);">Tee Time</th>
-            <th style="padding:0.5rem;text-align:center;border-bottom:1px solid var(--gray-200);">Status</th>
           </tr>
         </thead>
         <tbody>`;
 
-  teams.forEach(t => {
-    const players    = t.players.filter(p => p).join(', ');
-    const statusColor = t.valid ? 'var(--green)' : 'var(--red)';
-    const statusText  = t.valid ? '✓' : '✗';
-    html += `
-          <tr style="border-bottom:1px solid var(--gray-100);">
-            <td style="padding:0.5rem;font-weight:600;">${escHtml(t.name)}</td>
-            <td style="padding:0.5rem;color:var(--gray-500);">${escHtml(players)}</td>
-            <td style="padding:0.5rem;text-align:center;">${escHtml(t.pin)}</td>
-            <td style="padding:0.5rem;text-align:center;">${t.startingHole}</td>
-            <td style="padding:0.5rem;text-align:center;">${escHtml(t.teeTime)}</td>
-            <td style="padding:0.5rem;text-align:center;font-weight:700;color:${statusColor};">${statusText}</td>
-          </tr>`;
+  toAdd.forEach(t => {
+    html += `<tr style="border-bottom:1px solid var(--gray-100);background:#F0FDF4;">
+      <td style="padding:0.5rem;font-weight:700;color:var(--green);">Add</td>
+      <td style="padding:0.5rem;font-weight:600;">${escHtml(t.name)}</td>
+      <td style="padding:0.5rem;color:var(--gray-500);">${escHtml(t.players.filter(p=>p).join(', '))}</td>
+      <td style="padding:0.5rem;text-align:center;">${t.startingHole}</td>
+      <td style="padding:0.5rem;text-align:center;">${escHtml(t.teeTime)}</td>
+    </tr>`;
+  });
+
+  toUpdate.forEach(({ csvTeam: t }) => {
+    html += `<tr style="border-bottom:1px solid var(--gray-100);background:#EFF6FF;">
+      <td style="padding:0.5rem;font-weight:700;color:var(--teal);">Update</td>
+      <td style="padding:0.5rem;font-weight:600;">${escHtml(t.name)}</td>
+      <td style="padding:0.5rem;color:var(--gray-500);">${escHtml(t.players.filter(p=>p).join(', '))}</td>
+      <td style="padding:0.5rem;text-align:center;">${t.startingHole}</td>
+      <td style="padding:0.5rem;text-align:center;">${escHtml(t.teeTime)}</td>
+    </tr>`;
+  });
+
+  toRemove.forEach(([, team]) => {
+    html += `<tr style="border-bottom:1px solid var(--gray-100);background:#FFF7ED;">
+      <td style="padding:0.5rem;font-weight:700;color:var(--orange);">Remove</td>
+      <td style="padding:0.5rem;font-weight:600;">${escHtml(team.name)}</td>
+      <td style="padding:0.5rem;color:var(--gray-500);">${escHtml(Object.values(team.players||{}).filter(p=>p).join(', '))}</td>
+      <td style="padding:0.5rem;text-align:center;">${team.startingHole||1}</td>
+      <td style="padding:0.5rem;text-align:center;">${escHtml(team.teeTime||'')}</td>
+    </tr>`;
   });
 
   html += '</tbody></table></div>';
@@ -364,21 +408,48 @@ function renderCsvPreview(teams) {
 }
 
 csvImportBtn.addEventListener('click', async () => {
-  const validTeams = csvParsedTeams.filter(t => t.valid);
-  if (validTeams.length === 0) {
-    showAlert('No valid teams to import.', 'error');
+  const { toAdd, toUpdate, toRemove } = buildCsvDiff(csvParsedTeams);
+
+  if (toAdd.length === 0 && toUpdate.length === 0 && toRemove.length === 0) {
+    showAlert('No changes to apply.', 'error');
     return;
   }
 
-  csvImportBtn.disabled     = true;
-  csvImportBtn.textContent  = 'Importing…';
+  csvImportBtn.disabled    = true;
+  csvImportBtn.textContent = 'Saving…';
 
   try {
-    await Promise.all(validTeams.map(team => db.ref('tournament/teams').push(team)));
-    showAlert(`Successfully imported ${validTeams.length} team(s)!`, 'success');
+    const updates = {};
+
+    // Updates: preserve existing scores, apply new data
+    toUpdate.forEach(({ csvTeam, existing }) => {
+      const teamData = { name: csvTeam.name, players: csvTeam.players, pin: csvTeam.pin, startingHole: csvTeam.startingHole, teeTime: csvTeam.teeTime };
+      if (existing.team.scores) teamData.scores = existing.team.scores;
+      updates[`tournament/teams/${existing.id}`] = teamData;
+    });
+
+    // Removals
+    toRemove.forEach(([id]) => {
+      updates[`tournament/teams/${id}`] = null;
+    });
+
+    // Apply updates + removals atomically
+    if (Object.keys(updates).length) await db.ref().update(updates);
+
+    // Additions (need push keys)
+    await Promise.all(toAdd.map(t => {
+      const teamData = { name: t.name, players: t.players, pin: t.pin, startingHole: t.startingHole, teeTime: t.teeTime };
+      return db.ref('tournament/teams').push(teamData);
+    }));
+
+    const parts = [];
+    if (toAdd.length)    parts.push(`${toAdd.length} added`);
+    if (toUpdate.length) parts.push(`${toUpdate.length} updated`);
+    if (toRemove.length) parts.push(`${toRemove.length} removed`);
+    showAlert(`Done — ${parts.join(', ')}.`, 'success');
     resetCsvImport();
   } catch (err) {
-    showAlert('Error importing teams: ' + err.message, 'error');
+    showAlert('Error: ' + err.message, 'error');
     csvImportBtn.disabled    = false;
     csvImportBtn.textContent = 'Import Teams';
   }
@@ -395,6 +466,50 @@ function resetCsvImport() {
   csvImportBtn.disabled    = false;
   csvImportBtn.textContent = 'Import Teams';
 }
+
+// ── Clear All Data ────────────────────────────────────────────
+const clearDataBtn      = document.getElementById('clear-data-btn');
+const clearDataModal    = document.getElementById('clear-data-modal');
+const clearConfirmPw    = document.getElementById('clear-confirm-password');
+const clearError        = document.getElementById('clear-error');
+const clearConfirmBtn   = document.getElementById('clear-confirm-btn');
+const clearCancelBtn    = document.getElementById('clear-cancel-btn');
+
+clearDataBtn.addEventListener('click', () => {
+  clearConfirmPw.value  = '';
+  clearError.textContent = '';
+  clearDataModal.classList.remove('hidden');
+  setTimeout(() => clearConfirmPw.focus(), 50);
+});
+
+clearCancelBtn.addEventListener('click', () => {
+  clearDataModal.classList.add('hidden');
+});
+
+clearDataModal.addEventListener('click', e => {
+  if (e.target === clearDataModal) clearDataModal.classList.add('hidden');
+});
+
+clearConfirmBtn.addEventListener('click', async () => {
+  if (clearConfirmPw.value !== ADMIN_PASSWORD) {
+    clearError.textContent = 'Incorrect password.';
+    clearConfirmPw.focus();
+    return;
+  }
+
+  clearConfirmBtn.disabled    = true;
+  clearConfirmBtn.textContent = 'Deleting…';
+
+  try {
+    await db.ref('tournament/teams').remove();
+    clearDataModal.classList.add('hidden');
+    showAlert('All teams and scores have been deleted.', 'success');
+  } catch (err) {
+    clearError.textContent      = 'Error: ' + err.message;
+    clearConfirmBtn.disabled    = false;
+    clearConfirmBtn.textContent = 'Delete Everything';
+  }
+});
 
 // ── Helpers ───────────────────────────────────────────────────
 function showAlert(msg, type) {
