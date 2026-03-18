@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tournament Admin</title>
+  <link rel="stylesheet" href="../css/styles.css" />
+</head>
+<body>
+
+  <!-- ============================================================
+       LOGIN VIEW
+       ============================================================ -->
+  <div id="login-view" class="admin-login-wrapper">
+    <div class="admin-login-card">
+      <div class="logo-area">
+        <div class="logo-icon">⛳</div>
+        <h1>Tournament Admin</h1>
+        <p>Enter your admin password to continue</p>
+      </div>
+
+      <form id="login-form" novalidate>
+        <div class="form-group">
+          <label for="admin-password">Password</label>
+          <input type="password" id="admin-password" placeholder="Enter admin password"
+                 autocomplete="current-password" required />
+        </div>
+        <p class="error-msg" id="login-error"></p>
+        <button type="submit" class="btn btn-primary">Sign In</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       ADMIN DASHBOARD VIEW
+       ============================================================ -->
+  <div id="admin-view" class="hidden">
+
+    <div class="admin-header-bar">
+      <h1>⛳ Tournament Admin</h1>
+      <span class="admin-badge">ADMIN</span>
+    </div>
+
+    <div id="admin-content" style="max-width:760px;margin:0 auto;padding:1.5rem 1rem 4rem;">
+
+      <!-- Global alert -->
+      <div id="admin-alert" class="alert hidden"></div>
+
+      <!-- ── Tournament Settings ── -->
+      <div class="section-card">
+        <div class="section-header">
+          <h2>🏆 Tournament Settings</h2>
+        </div>
+        <div class="section-body">
+          <form id="settings-form" novalidate>
+            <div class="form-group">
+              <label for="t-name-input">Tournament Name</label>
+              <input type="text" id="t-name-input" placeholder="e.g. Annual Charity Golf Classic" />
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label for="t-date-input">Date</label>
+                <input type="date" id="t-date-input" />
+              </div>
+              <div class="form-group" style="flex:1;"><!-- spacer --></div>
+            </div>
+            <div class="form-group">
+              <label for="t-instructions-input">Instructions / Description</label>
+              <textarea id="t-instructions-input"
+                        placeholder="Rules, format notes, or any info players should see on the landing page..."></textarea>
+            </div>
+            <div class="lock-toggle-row">
+              <input type="checkbox" id="t-locked-input" />
+              <div>
+                <div class="lock-toggle-label">🔐 Lock scoring</div>
+                <div class="lock-toggle-sub">Prevents all teams from editing scores. Use after the round ends.</div>
+              </div>
+            </div>
+            <button type="submit" class="btn btn-primary" style="width:auto;padding:.625rem 1.75rem;margin-top:1rem;">
+              Save Settings
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <!-- ── Course Par Settings ── -->
+      <div class="section-card">
+        <div class="section-header">
+          <h2>⛳ Course Par Settings</h2>
+          <button type="button" class="btn btn-sm btn-ghost" id="reset-par-btn">Reset to Par 4</button>
+        </div>
+        <div class="section-body">
+          <p style="font-size:0.875rem;color:var(--gray-500);margin-bottom:1rem;">
+            Set par for each hole to enable relative scoring (+/-) and color-coded scorecards.
+          </p>
+          <div class="par-nine-label">Front 9</div>
+          <div class="par-grid" id="par-grid-front"></div>
+          <div class="par-nine-label" style="margin-top:0.875rem;">Back 9</div>
+          <div class="par-grid" id="par-grid-back"></div>
+          <button type="button" class="btn btn-primary" id="save-par-btn"
+                  style="width:auto;padding:.625rem 1.75rem;margin-top:1rem;">
+            Save Par Settings
+          </button>
+        </div>
+      </div>
+
+      <!-- ── Add / Edit Team ── -->
+      <div class="section-card">
+        <div class="section-header">
+          <h2 id="team-form-title">➕ Add Team</h2>
+        </div>
+        <div class="section-body">
+          <form id="team-form" novalidate>
+
+            <div class="form-group">
+              <label for="f-team-name">Team Name *</label>
+              <input type="text" id="f-team-name" placeholder="e.g. The Eagles" required />
+            </div>
+
+            <div class="player-grid">
+              <div class="form-group">
+                <label for="f-p1">Player 1 *</label>
+                <input type="text" id="f-p1" placeholder="Full name" required />
+              </div>
+              <div class="form-group">
+                <label for="f-p2">Player 2</label>
+                <input type="text" id="f-p2" placeholder="Full name" />
+              </div>
+              <div class="form-group">
+                <label for="f-p3">Player 3</label>
+                <input type="text" id="f-p3" placeholder="Full name" />
+              </div>
+              <div class="form-group">
+                <label for="f-p4">Player 4</label>
+                <input type="text" id="f-p4" placeholder="Full name" />
+              </div>
+            </div>
+
+            <hr class="form-divider" />
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="f-pin">PIN (4–6 digits) *</label>
+                <input type="tel" id="f-pin" placeholder="e.g. 1234"
+                       maxlength="6" inputmode="numeric" pattern="[0-9]*" required />
+              </div>
+              <div class="form-group">
+                <label for="f-starting-hole">Starting Hole</label>
+                <select id="f-starting-hole">
+                  <option value="1">Hole 1</option>
+                  <option value="2">Hole 2</option>
+                  <option value="3">Hole 3</option>
+                  <option value="4">Hole 4</option>
+                  <option value="5">Hole 5</option>
+                  <option value="6">Hole 6</option>
+                  <option value="7">Hole 7</option>
+                  <option value="8">Hole 8</option>
+                  <option value="9">Hole 9</option>
+                  <option value="10">Hole 10</option>
+                  <option value="11">Hole 11</option>
+                  <option value="12">Hole 12</option>
+                  <option value="13">Hole 13</option>
+                  <option value="14">Hole 14</option>
+                  <option value="15">Hole 15</option>
+                  <option value="16">Hole 16</option>
+                  <option value="17">Hole 17</option>
+                  <option value="18">Hole 18</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="f-tee-time">Tee Time</label>
+              <input type="time" id="f-tee-time" />
+            </div>
+
+            <div class="form-actions">
+              <button type="submit" class="btn btn-primary" id="team-submit-btn">Add Team</button>
+              <button type="button" class="cancel-btn hidden" id="cancel-edit-btn">Cancel</button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- ── CSV Import ── -->
+      <div class="section-card">
+        <div class="section-header">
+          <h2>📤 Import Teams via CSV</h2>
+        </div>
+        <div class="section-body">
+          <p style="font-size:0.875rem;color:var(--gray-500);margin-bottom:0.5rem;">
+            Upload a CSV file to bulk-import teams. Column order:
+          </p>
+          <p style="font-size:0.8125rem;color:var(--gray-700);background:var(--gray-100);padding:0.5rem 0.75rem;border-radius:var(--radius);margin-bottom:1rem;font-family:monospace;">
+            Team Name, Player 1, Player 2, Player 3, Player 4, PIN, Starting Hole, Tee Time
+          </p>
+          <p style="font-size:0.8125rem;color:var(--gray-500);margin-bottom:1rem;">
+            Players 2–4, Starting Hole, and Tee Time are optional. PIN must be 4–6 digits. A header row is automatically skipped.
+          </p>
+          <div class="csv-upload-area" id="csv-drop-area">
+            <div style="font-size:2rem;">📂</div>
+            <p>Drag &amp; drop a CSV file here, or click to browse</p>
+            <input type="file" id="csv-file-input" accept=".csv,text/csv" style="display:none;" />
+          </div>
+          <div id="csv-preview" style="display:none;margin-top:1rem;">
+            <div id="csv-preview-content"></div>
+            <div style="display:flex;gap:0.75rem;margin-top:1rem;">
+              <button class="btn btn-primary" id="csv-import-btn" style="width:auto;padding:.625rem 1.75rem;">Import Teams</button>
+              <button class="cancel-btn" id="csv-cancel-btn">Cancel</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Teams List ── -->
+      <div class="section-card">
+        <div class="section-header">
+          <h2>👥 Registered Teams</h2>
+          <span id="teams-count" style="font-size:.875rem;color:var(--gray-500);"></span>
+        </div>
+        <div class="section-body">
+          <div id="teams-list" class="teams-list">
+            <p class="empty-state">No teams yet. Add one above.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Danger Zone ── -->
+      <div class="section-card" style="border:1.5px solid var(--red);">
+        <div class="section-header" style="background:#FEF2F2;border-bottom-color:#FCA5A5;">
+          <h2 style="color:var(--red);">⚠️ Danger Zone</h2>
+        </div>
+        <div class="section-body">
+          <p style="font-size:0.875rem;color:var(--gray-700);margin-bottom:1rem;">
+            Permanently delete all teams and scores. Tournament settings (name, date, instructions) will be preserved. This cannot be undone.
+          </p>
+          <button class="btn btn-danger" id="clear-data-btn" style="width:auto;padding:.625rem 1.75rem;">
+            Clear All Teams &amp; Scores
+          </button>
+        </div>
+      </div>
+
+    </div><!-- /admin-content -->
+  </div><!-- /admin-view -->
+
+  <!-- Score Override Modal -->
+  <div id="score-override-modal" class="modal-overlay hidden">
+    <div class="modal-card" style="max-width:520px;">
+      <h3 id="override-team-name" style="color:var(--teal);font-size:1.1rem;margin-bottom:0.25rem;"></h3>
+      <p style="color:var(--gray-500);margin-bottom:0.5rem;">Admin score override — edit any hole directly.</p>
+      <div class="par-nine-label">Front 9</div>
+      <div class="override-holes-grid" id="override-grid-front"></div>
+      <div class="par-nine-label" style="margin-top:0.75rem;">Back 9</div>
+      <div class="override-holes-grid" id="override-grid-back"></div>
+      <div style="display:flex;gap:0.75rem;margin-top:1.25rem;">
+        <button class="btn btn-primary" id="override-save-btn" style="flex:1;">Save Scores</button>
+        <button class="cancel-btn" id="override-cancel-btn">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Clear Data Modal -->
+  <div id="clear-data-modal" class="modal-overlay hidden">
+    <div class="modal-card">
+      <h3>⚠️ Clear All Teams &amp; Scores</h3>
+      <p>This will permanently delete all teams and every score recorded. This <strong>cannot be undone</strong>.</p>
+      <p style="margin-top:0.5rem;">Enter the admin password to confirm:</p>
+      <div class="form-group" style="margin-top:0.75rem;">
+        <input type="password" id="clear-confirm-password" placeholder="Admin password" autocomplete="off" />
+      </div>
+      <p class="error-msg" id="clear-error"></p>
+      <div style="display:flex;gap:0.75rem;margin-top:0.25rem;">
+        <button class="btn btn-danger" id="clear-confirm-btn" style="flex:1;">Delete Everything</button>
+        <button class="cancel-btn" id="clear-cancel-btn">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Firebase SDKs (compat) -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-database-compat.js"></script>
+  <script src="../js/firebase-config.js"></script>
+  <script src="../js/admin.js"></script>
+</body>
+</html>

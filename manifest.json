@@ -1,0 +1,10 @@
+{
+  "name": "Golf Tournament Scorer",
+  "short_name": "Golf Scorer",
+  "description": "Live scoring for golf tournaments",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#1B6B7A",
+  "theme_color": "#1B6B7A",
+  "icons": []
+}
