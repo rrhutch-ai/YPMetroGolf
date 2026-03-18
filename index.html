@@ -36,22 +36,24 @@
        ============================================================ -->
   <div id="scorecard-view" class="hidden">
 
-    <div class="app-header">
-      <button class="back-btn" id="sc-back-btn">← Back</button>
-      <h1 id="sc-team-name">Scorecard</h1>
-      <button class="header-action" id="sc-pin-btn">🔐 PIN</button>
-      <button class="header-action" id="sc-leaderboard-btn">🏆 Board</button>
-    </div>
-
-    <div class="score-summary-bar">
-      <div class="team-players" id="sc-players"></div>
-      <div class="total-score">
-        Total: <span id="running-total">—</span>
+    <div class="scorecard-sticky-header">
+      <div class="app-header">
+        <button class="back-btn" id="sc-back-btn">← Back</button>
+        <h1 id="sc-team-name">Scorecard</h1>
+        <button class="header-action" id="sc-pin-btn">🔐 PIN</button>
+        <button class="header-action" id="sc-leaderboard-btn">🏆 Board</button>
       </div>
-    </div>
 
-    <div id="view-only-banner" class="view-only-banner hidden">
-      🔒 Tap <strong>PIN</strong> in the header to enter or edit scores
+      <div class="score-summary-bar">
+        <div class="team-players" id="sc-players"></div>
+        <div class="total-score">
+          Total: <span id="running-total">—</span>
+        </div>
+      </div>
+
+      <div id="view-only-banner" class="view-only-banner hidden">
+        🔒 Tap <strong>PIN</strong> in the header to enter or edit scores
+      </div>
     </div>
 
     <div class="holes-container" id="scorecard-holes"></div>
