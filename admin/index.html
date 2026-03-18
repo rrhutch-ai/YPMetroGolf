@@ -69,10 +69,38 @@
               <textarea id="t-instructions-input"
                         placeholder="Rules, format notes, or any info players should see on the landing page..."></textarea>
             </div>
-            <button type="submit" class="btn btn-primary" style="width:auto;padding:.625rem 1.75rem;">
+            <div class="lock-toggle-row">
+              <input type="checkbox" id="t-locked-input" />
+              <div>
+                <div class="lock-toggle-label">🔐 Lock scoring</div>
+                <div class="lock-toggle-sub">Prevents all teams from editing scores. Use after the round ends.</div>
+              </div>
+            </div>
+            <button type="submit" class="btn btn-primary" style="width:auto;padding:.625rem 1.75rem;margin-top:1rem;">
               Save Settings
             </button>
           </form>
+        </div>
+      </div>
+
+      <!-- ── Course Par Settings ── -->
+      <div class="section-card">
+        <div class="section-header">
+          <h2>⛳ Course Par Settings</h2>
+          <button type="button" class="btn btn-sm btn-ghost" id="reset-par-btn">Reset to Par 4</button>
+        </div>
+        <div class="section-body">
+          <p style="font-size:0.875rem;color:var(--gray-500);margin-bottom:1rem;">
+            Set par for each hole to enable relative scoring (+/-) and color-coded scorecards.
+          </p>
+          <div class="par-nine-label">Front 9</div>
+          <div class="par-grid" id="par-grid-front"></div>
+          <div class="par-nine-label" style="margin-top:0.875rem;">Back 9</div>
+          <div class="par-grid" id="par-grid-back"></div>
+          <button type="button" class="btn btn-primary" id="save-par-btn"
+                  style="width:auto;padding:.625rem 1.75rem;margin-top:1rem;">
+            Save Par Settings
+          </button>
         </div>
       </div>
 
@@ -214,6 +242,22 @@
 
     </div><!-- /admin-content -->
   </div><!-- /admin-view -->
+
+  <!-- Score Override Modal -->
+  <div id="score-override-modal" class="modal-overlay hidden">
+    <div class="modal-card" style="max-width:520px;">
+      <h3 id="override-team-name" style="color:var(--teal);font-size:1.1rem;margin-bottom:0.25rem;"></h3>
+      <p style="color:var(--gray-500);margin-bottom:0.5rem;">Admin score override — edit any hole directly.</p>
+      <div class="par-nine-label">Front 9</div>
+      <div class="override-holes-grid" id="override-grid-front"></div>
+      <div class="par-nine-label" style="margin-top:0.75rem;">Back 9</div>
+      <div class="override-holes-grid" id="override-grid-back"></div>
+      <div style="display:flex;gap:0.75rem;margin-top:1.25rem;">
+        <button class="btn btn-primary" id="override-save-btn" style="flex:1;">Save Scores</button>
+        <button class="cancel-btn" id="override-cancel-btn">Cancel</button>
+      </div>
+    </div>
+  </div>
 
   <!-- Clear Data Modal -->
   <div id="clear-data-modal" class="modal-overlay hidden">

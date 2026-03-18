@@ -7,6 +7,10 @@ let currentTeamData = null;
 let scoresListener  = null;
 let teamsListener   = null;
 let isViewOnly      = true;
+let currentPar      = {};
+let isLocked        = false;
+let scorecardOrigin = 'landing';
+let allTeams        = {};
 
 // ── View switcher ─────────────────────────────────────────────
 function showView(name) {
@@ -24,7 +28,6 @@ function loadSettings() {
 
     const dateEl = document.getElementById('t-date');
     if (s.date) {
-      // Format date nicely without timezone shift
       const [y, m, d] = s.date.split('-');
       dateEl.textContent = new Date(Number(y), Number(m) - 1, Number(d))
         .toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
@@ -35,13 +38,22 @@ function loadSettings() {
     const instrEl = document.getElementById('t-instructions');
     if (s.instructions) {
       instrEl.innerHTML = s.instructions
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/\n/g, '<br>');
+        .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\n/g, '<br>');
       instrEl.style.display = 'block';
     } else {
       instrEl.style.display = 'none';
+    }
+
+    currentPar = s.par    || {};
+    isLocked   = s.locked || false;
+
+    // Re-render landing teams with updated par/progress
+    if (Object.keys(allTeams).length) renderLandingTeams(allTeams);
+
+    // Update scorecard live if open
+    if (!document.getElementById('scorecard-view').classList.contains('hidden')) {
+      updateScorecardBanners();
+      updateHoleInputLockState();
     }
   });
 }
@@ -49,7 +61,8 @@ function loadSettings() {
 // ── Team list ─────────────────────────────────────────────────
 function loadTeams() {
   db.ref('tournament/teams').on('value', snap => {
-    renderLandingTeams(snap.val() || {});
+    allTeams = snap.val() || {};
+    renderLandingTeams(allTeams);
   });
 }
 
@@ -58,11 +71,7 @@ function renderLandingTeams(teams) {
   const list    = document.getElementById('landing-teams-list');
   const entries = Object.keys(teams);
 
-  if (entries.length === 0) {
-    section.style.display = 'none';
-    return;
-  }
-
+  if (entries.length === 0) { section.style.display = 'none'; return; }
   section.style.display = 'block';
 
   const sorted = Object.entries(teams).sort((a, b) => {
@@ -96,6 +105,25 @@ function renderLandingTeams(teams) {
       leftEl.appendChild(playersEl);
     }
 
+    // Score progress
+    const scores    = team.scores || {};
+    const scoredKeys = Object.keys(scores).filter(k => Number(scores[k]) > 0);
+    if (scoredKeys.length > 0) {
+      const total      = scoredKeys.reduce((sum, k) => sum + Number(scores[k]), 0);
+      const parTotal   = scoredKeys.reduce((sum, k) => sum + (currentPar[k] || 0), 0);
+      const progressEl = document.createElement('div');
+      progressEl.className = 'landing-team-progress';
+      if (parTotal > 0) {
+        const rel    = total - parTotal;
+        const relStr = rel === 0 ? 'E' : (rel > 0 ? `+${rel}` : `${rel}`);
+        const cls    = rel < 0 ? 'prog-under' : rel > 0 ? 'prog-over' : 'prog-even';
+        progressEl.innerHTML = `${scoredKeys.length}/18 &nbsp;•&nbsp; <span class="${cls}">${relStr}</span>`;
+      } else {
+        progressEl.textContent = `${scoredKeys.length}/18 holes • ${total} strokes`;
+      }
+      leftEl.appendChild(progressEl);
+    }
+
     const detailsEl = document.createElement('div');
     detailsEl.className = 'landing-team-details';
 
@@ -113,12 +141,18 @@ function renderLandingTeams(teams) {
 
     row.appendChild(leftEl);
     row.appendChild(detailsEl);
+
     row.addEventListener('click', () => {
+      let authedId = null;
+      try { authedId = JSON.parse(sessionStorage.getItem('golfAuthedTeam'))?.id; } catch(e) {}
+
       currentTeamId   = id;
       currentTeamData = team;
-      isViewOnly      = true;
+      isViewOnly      = isLocked ? true : (authedId !== id);
+      scorecardOrigin = 'landing';
       openScorecard(id, team);
     });
+
     list.appendChild(row);
   });
 }
@@ -152,12 +186,13 @@ function openPinModal(teamId, team) {
 function submitPin() {
   const pin   = document.getElementById('pin-modal-input').value.trim();
   const errEl = document.getElementById('pin-modal-error');
-  if (!pin)                        { errEl.textContent = 'Please enter your PIN.';    return; }
-  if (pendingTeam.pin !== pin)     { errEl.textContent = 'Incorrect PIN. Try again.'; return; }
+  if (!pin)                    { errEl.textContent = 'Please enter your PIN.';    return; }
+  if (pendingTeam.pin !== pin) { errEl.textContent = 'Incorrect PIN. Try again.'; return; }
   document.getElementById('pin-modal').classList.add('hidden');
   currentTeamId   = pendingTeamId;
   currentTeamData = pendingTeam;
   isViewOnly      = false;
+  sessionStorage.setItem('golfAuthedTeam', JSON.stringify({ id: pendingTeamId }));
   openScorecard(pendingTeamId, pendingTeam);
 }
 
@@ -176,28 +211,15 @@ document.getElementById('pin-modal')?.addEventListener('click', e => {
 // ── Scorecard ─────────────────────────────────────────────────
 function openScorecard(teamId, team) {
   document.getElementById('sc-team-name').textContent = team.name;
-
   const players = Object.values(team.players || {}).filter(p => p);
   document.getElementById('sc-players').textContent = players.join(' • ');
 
-  // Show PIN button and banner only in view-only mode
-  const pinBtn = document.getElementById('sc-pin-btn');
-  const banner = document.getElementById('view-only-banner');
-  if (isViewOnly) {
-    pinBtn.classList.remove('hidden');
-    banner.classList.remove('hidden');
-  } else {
-    pinBtn.classList.add('hidden');
-    banner.classList.add('hidden');
-  }
-
+  updateScorecardBanners();
   renderHoleRows(teamId, team);
 
-  // Detach previous listener
   if (scoresListener) {
     db.ref(`tournament/teams/${currentTeamId}/scores`).off('value', scoresListener);
   }
-
   scoresListener = db.ref(`tournament/teams/${teamId}/scores`).on('value', snap => {
     const scores = snap.val() || {};
     syncInputsToScores(scores);
@@ -207,19 +229,50 @@ function openScorecard(teamId, team) {
   showView('scorecard');
 }
 
+function updateScorecardBanners() {
+  const pinBtn     = document.getElementById('sc-pin-btn');
+  const viewBanner = document.getElementById('view-only-banner');
+  const lockBanner = document.getElementById('locked-banner');
+
+  if (isLocked) {
+    pinBtn.classList.add('hidden');
+    viewBanner.classList.add('hidden');
+    lockBanner.classList.remove('hidden');
+  } else if (isViewOnly) {
+    pinBtn.classList.remove('hidden');
+    viewBanner.classList.remove('hidden');
+    lockBanner.classList.add('hidden');
+  } else {
+    pinBtn.classList.add('hidden');
+    viewBanner.classList.add('hidden');
+    lockBanner.classList.add('hidden');
+  }
+}
+
+function updateHoleInputLockState() {
+  const shouldDisable = isViewOnly || isLocked;
+  for (let h = 1; h <= 18; h++) {
+    const input = document.getElementById(`hole-input-${h}`);
+    if (input) input.disabled = shouldDisable;
+  }
+}
+
 function renderHoleRows(teamId, team) {
-  const container = document.getElementById('scorecard-holes');
+  const container     = document.getElementById('scorecard-holes');
   container.innerHTML = '';
+  const shouldDisable = isViewOnly || isLocked;
 
   for (let h = 1; h <= 18; h++) {
     const isStart = Number(team.startingHole) === h;
-    const row = document.createElement('div');
+    const par     = currentPar[`hole${h}`];
+    const row     = document.createElement('div');
     row.className = `hole-row${isStart ? ' starting-hole' : ''}`;
     row.innerHTML = `
       <div class="hole-left">
         <div class="hole-num-circle">${h}</div>
         <div class="hole-meta">
           <span class="hole-label">Hole ${h}</span>
+          ${par ? `<span class="hole-par">Par ${par}</span>` : ''}
           ${isStart ? '<span class="start-badge">YOUR START</span>' : ''}
         </div>
       </div>
@@ -228,18 +281,17 @@ function renderHoleRows(teamId, team) {
         class="hole-score-input"
         id="hole-input-${h}"
         data-hole="${h}"
-        min="1"
-        max="20"
+        min="1" max="20"
         placeholder="—"
         inputmode="numeric"
+        ${shouldDisable ? 'disabled' : ''}
       />
     `;
     container.appendChild(row);
 
-    const input = row.querySelector('input');
-    input.disabled = isViewOnly;
-    if (!isViewOnly) {
-      input.addEventListener('change', e => saveScore(teamId, h, e.target.value));
+    if (!shouldDisable) {
+      const input = row.querySelector('input');
+      input.addEventListener('change', e => saveScore(teamId, h, e.target.value, input));
       input.addEventListener('input',  () => updateRunningTotal(getCurrentScoresFromInputs()));
     }
   }
@@ -252,7 +304,20 @@ function syncInputsToScores(scores) {
     const val = scores[`hole${h}`];
     input.value = val != null ? val : '';
     input.classList.toggle('has-score', val != null);
+    applyScoreClass(input, val, h);
   }
+}
+
+function applyScoreClass(input, score, holeNum) {
+  input.classList.remove('score-eagle', 'score-birdie', 'score-par', 'score-bogey', 'score-double');
+  const par = currentPar[`hole${holeNum}`];
+  if (!score || !par) return;
+  const diff = Number(score) - par;
+  if (diff <= -2)       input.classList.add('score-eagle');
+  else if (diff === -1) input.classList.add('score-birdie');
+  else if (diff === 0)  input.classList.add('score-par');
+  else if (diff === 1)  input.classList.add('score-bogey');
+  else                  input.classList.add('score-double');
 }
 
 function getCurrentScoresFromInputs() {
@@ -264,42 +329,81 @@ function getCurrentScoresFromInputs() {
   return scores;
 }
 
-function saveScore(teamId, hole, rawVal) {
+function saveScore(teamId, hole, rawVal, input) {
   const val = parseInt(rawVal, 10);
   const ref = db.ref(`tournament/teams/${teamId}/scores/hole${hole}`);
   if (!isNaN(val) && val >= 1) {
-    ref.set(val);
+    ref.set(val).then(() => {
+      flashSaved(input);
+      applyScoreClass(input, val, hole);
+    });
   } else {
-    ref.remove();
+    ref.remove().then(() => {
+      input.classList.remove('score-eagle', 'score-birdie', 'score-par', 'score-bogey', 'score-double');
+    });
   }
 }
 
+function flashSaved(input) {
+  input.classList.remove('score-saved-flash');
+  void input.offsetWidth;
+  input.classList.add('score-saved-flash');
+  setTimeout(() => input.classList.remove('score-saved-flash'), 1200);
+}
+
 function updateRunningTotal(scores) {
-  const total = Object.values(scores).reduce((sum, s) => sum + (Number(s) || 0), 0);
-  document.getElementById('running-total').textContent = total || '—';
+  const scoredKeys   = Object.keys(scores).filter(k => Number(scores[k]) > 0);
+  const total        = scoredKeys.reduce((sum, k) => sum + Number(scores[k]), 0);
+  const parForScored = scoredKeys.reduce((sum, k) => sum + (currentPar[k] || 0), 0);
+
+  const totalEl = document.getElementById('running-total');
+  const relEl   = document.getElementById('running-rel');
+
+  if (total === 0) {
+    totalEl.textContent = '—';
+    if (relEl) { relEl.textContent = ''; relEl.className = 'running-rel'; }
+  } else {
+    totalEl.textContent = total;
+    if (relEl && parForScored > 0) {
+      const rel = total - parForScored;
+      relEl.textContent = rel === 0 ? 'E' : (rel > 0 ? `+${rel}` : `${rel}`);
+      relEl.className   = `running-rel ${rel < 0 ? 'under-par' : rel > 0 ? 'over-par' : 'even-par'}`;
+    } else if (relEl) {
+      relEl.textContent = '';
+      relEl.className   = 'running-rel';
+    }
+  }
 }
 
 // ── Leaderboard ───────────────────────────────────────────────
 function openLeaderboard() {
-  if (teamsListener) {
-    db.ref('tournament/teams').off('value', teamsListener);
-  }
+  if (teamsListener) db.ref('tournament/teams').off('value', teamsListener);
 
   teamsListener = db.ref('tournament/teams').on('value', snap => {
-    const teams = snap.val() || {};
-    const rows  = Object.entries(teams).map(([id, team]) => {
+    allTeams = snap.val() || {};
+    const hasPar = Object.keys(currentPar).length > 0;
+
+    const rows = Object.entries(allTeams).map(([id, team]) => {
       const scores        = team.scores || {};
-      const holesScored   = Object.values(scores).filter(s => Number(s) > 0);
-      const total         = holesScored.reduce((sum, s) => sum + Number(s), 0);
-      const holesComplete = holesScored.length;
-      return { id, name: team.name, players: Object.values(team.players || {}), total, holesComplete };
+      const scoredKeys    = Object.keys(scores).filter(k => Number(scores[k]) > 0);
+      const total         = scoredKeys.reduce((sum, k) => sum + Number(scores[k]), 0);
+      const holesComplete = scoredKeys.length;
+      const isComplete    = holesComplete === 18;
+      const parForScored  = scoredKeys.reduce((sum, k) => sum + (currentPar[k] || 0), 0);
+      const relScore      = (hasPar && parForScored > 0) ? total - parForScored : null;
+      const players       = Object.values(team.players || {});
+      return { id, name: team.name, players, total, holesComplete, isComplete, relScore };
     });
 
-    // Sort: scored teams by total (asc), then un-scored teams alphabetically
     rows.sort((a, b) => {
-      if (a.total > 0 && b.total > 0) return a.total - b.total;
-      if (a.total > 0) return -1;
-      if (b.total > 0) return  1;
+      const aStarted = a.total > 0;
+      const bStarted = b.total > 0;
+      if (aStarted && bStarted) {
+        if (a.relScore !== null && b.relScore !== null) return a.relScore - b.relScore;
+        return a.total - b.total;
+      }
+      if (aStarted) return -1;
+      if (bStarted) return  1;
       return a.name.localeCompare(b.name);
     });
 
@@ -318,33 +422,60 @@ function renderLeaderboard(rows) {
     return;
   }
 
+  const hasPar = Object.keys(currentPar).length > 0;
   let rank = 1;
+
   rows.forEach((team, i) => {
-    const isLeader     = i === 0 && team.total > 0;
+    const isLeader      = i === 0 && team.total > 0;
     const isCurrentTeam = team.id === currentTeamId;
-    const displayRank  = team.total > 0 ? rank++ : '—';
+    const displayRank   = team.total > 0 ? rank++ : '—';
+
+    let scoreMainHtml = '<span class="lb-score-main">—</span>';
+    let scoreSubHtml  = '';
+
+    if (team.total > 0) {
+      if (hasPar && team.relScore !== null) {
+        const relStr  = team.relScore === 0 ? 'E' : (team.relScore > 0 ? `+${team.relScore}` : `${team.relScore}`);
+        const relCls  = team.relScore < 0 ? 'under-par' : team.relScore > 0 ? 'over-par' : 'even-par';
+        scoreMainHtml = `<span class="lb-score-main ${relCls}">${relStr}</span>`;
+        scoreSubHtml  = `<span class="lb-score-sub">${team.total} strokes</span>`;
+      } else {
+        scoreMainHtml = `<span class="lb-score-main">${team.total}</span>`;
+      }
+    }
 
     const card = document.createElement('div');
     card.className = [
-      'leaderboard-card',
+      'leaderboard-card clickable',
       isLeader      ? 'leader'       : '',
       isCurrentTeam ? 'current-team' : '',
-    ].join(' ');
+    ].filter(Boolean).join(' ');
 
-    const players = team.players.filter(p => p).join(', ');  // already Object.values'd above
-
+    const players = team.players.filter(p => p).join(', ');
     card.innerHTML = `
       <div class="lb-rank">${displayRank}</div>
       <div class="lb-info">
         <div class="lb-team-name">
           ${team.name}
           ${isCurrentTeam ? '<span class="you-badge">YOU</span>' : ''}
+          ${team.isComplete ? '<span class="done-badge">✓ DONE</span>' : ''}
         </div>
         ${players ? `<div class="lb-players">${players}</div>` : ''}
         <div class="lb-holes">${team.holesComplete} / 18 holes scored</div>
       </div>
-      <div class="lb-score">${team.total || '—'}</div>
+      <div class="lb-score">${scoreMainHtml}${scoreSubHtml}</div>
     `;
+
+    card.addEventListener('click', () => {
+      const teamFull = allTeams[team.id];
+      if (!teamFull) return;
+      currentTeamId   = team.id;
+      currentTeamData = teamFull;
+      isViewOnly      = true;
+      scorecardOrigin = 'leaderboard';
+      openScorecard(team.id, teamFull);
+    });
+
     list.appendChild(card);
   });
 }
@@ -357,11 +488,13 @@ document.getElementById('sc-pin-btn')?.addEventListener('click', () => {
   openPinModal(currentTeamId, currentTeamData);
 });
 
-document.getElementById('sc-back-btn')?.addEventListener('click', () => showView('landing'));
+document.getElementById('sc-back-btn')?.addEventListener('click', () => {
+  showView(scorecardOrigin);
+});
 
 document.getElementById('lb-back-btn')?.addEventListener('click', () => {
-  if (currentTeamId) showView('scorecard');
-  else               showView('landing');
+  if (currentTeamId && !isViewOnly && !isLocked) showView('scorecard');
+  else showView('landing');
 });
 
 // ── Init ──────────────────────────────────────────────────────

@@ -665,15 +665,30 @@ textarea { resize: vertical; min-height: 80px; }
 }
 
 .lb-score {
+  flex-shrink: 0;
+  min-width: 56px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.lb-score-main {
   font-size: 1.75rem;
   font-weight: 800;
   color: var(--teal);
-  flex-shrink: 0;
-  min-width: 48px;
-  text-align: right;
+  line-height: 1;
 }
 
-.leaderboard-card.leader .lb-score { color: var(--orange); }
+.lb-score-main.under-par { color: var(--green); }
+.lb-score-main.over-par  { color: var(--red); }
+.lb-score-main.even-par  { color: var(--gray-700); }
+.leaderboard-card.leader .lb-score-main { color: var(--orange); }
+
+.lb-score-sub {
+  font-size: 0.7rem;
+  color: var(--gray-400);
+  margin-top: 0.125rem;
+}
 
 .lb-live-badge {
   display: flex;
@@ -946,4 +961,152 @@ textarea { resize: vertical; min-height: 80px; }
   color: var(--gray-500);
   font-size: 0.875rem;
   margin-top: 0.5rem;
+}
+
+/* ============================================================
+   SCORE COLOR CODING
+   ============================================================ */
+.hole-score-input.score-eagle  { background: #14532D; color: white; border-color: #14532D; }
+.hole-score-input.score-birdie { background: var(--green); color: white; border-color: var(--green); }
+.hole-score-input.score-par    { background: var(--white); color: var(--gray-700); border-color: var(--gray-300); }
+.hole-score-input.score-bogey  { background: #FEE2E2; color: #991B1B; border-color: #FCA5A5; }
+.hole-score-input.score-double { background: var(--red); color: white; border-color: var(--red); }
+
+@keyframes savedFlash {
+  0%   { box-shadow: 0 0 0 4px rgba(22,163,74,0.5); }
+  100% { box-shadow: none; }
+}
+.score-saved-flash { animation: savedFlash 1.2s ease forwards; }
+
+/* ── Par label in hole row ── */
+.hole-par {
+  font-size: 0.65rem;
+  color: var(--gray-400);
+  font-weight: 500;
+}
+
+/* ── Running total relative score ── */
+.running-rel { font-size: 1rem; font-weight: 700; margin-left: 0.375rem; }
+.running-rel.under-par { color: var(--green); }
+.running-rel.over-par  { color: var(--red); }
+.running-rel.even-par  { color: var(--gray-500); }
+
+/* ── Locked banner ── */
+.locked-banner {
+  background: #FEE2E2;
+  border-bottom: 2px solid var(--red);
+  color: #991B1B;
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-align: center;
+  padding: 0.625rem 1rem;
+}
+
+/* ── Landing team score progress ── */
+.landing-team-progress { font-size: 0.75rem; color: var(--gray-500); margin-top: 0.125rem; }
+.prog-under { color: var(--green); font-weight: 700; }
+.prog-over  { color: var(--red);   font-weight: 700; }
+.prog-even  { color: var(--gray-700); font-weight: 700; }
+
+/* ── Leaderboard clickable cards ── */
+.leaderboard-card.clickable { cursor: pointer; }
+.leaderboard-card.clickable:hover { border-color: var(--teal); box-shadow: var(--shadow); }
+.leaderboard-card.leader.clickable:hover { border-color: var(--orange); }
+
+/* ── Completion badge ── */
+.done-badge {
+  font-size: 0.6rem;
+  font-weight: 700;
+  background: var(--green);
+  color: white;
+  padding: 0.125rem 0.375rem;
+  border-radius: 4px;
+  letter-spacing: 0.04em;
+}
+
+/* ============================================================
+   ADMIN — PAR GRID & SCORE OVERRIDE
+   ============================================================ */
+.par-nine-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--gray-500);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 0.375rem;
+}
+
+.par-grid, .override-holes-grid {
+  display: grid;
+  grid-template-columns: repeat(9, 1fr);
+  gap: 0.375rem;
+}
+
+.par-hole-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.125rem;
+}
+
+.par-hole-label {
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: var(--gray-500);
+}
+
+.par-hole-input {
+  width: 100%;
+  text-align: center;
+  padding: 0.375rem 0.125rem;
+  font-size: 0.9rem;
+  font-weight: 700;
+  border: 1.5px solid var(--gray-200);
+  border-radius: 6px;
+  color: var(--teal-dark);
+  background: var(--white);
+  -moz-appearance: textfield;
+}
+.par-hole-input::-webkit-outer-spin-button,
+.par-hole-input::-webkit-inner-spin-button { -webkit-appearance: none; }
+.par-hole-input:focus { outline: none; border-color: var(--teal); }
+
+/* ── Scores button ── */
+.btn-scores {
+  padding: 0.375rem 0.75rem;
+  background: transparent;
+  color: var(--green);
+  border: 1.5px solid var(--green);
+  border-radius: var(--radius);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.btn-scores:hover { background: var(--green); color: white; }
+
+/* ── Lock toggle ── */
+.lock-toggle-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  background: #FEF2F2;
+  border: 1.5px solid #FCA5A5;
+  border-radius: var(--radius);
+  margin-top: 0.75rem;
+}
+.lock-toggle-row input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  margin-top: 0.125rem;
+  cursor: pointer;
+  accent-color: var(--red);
+  flex-shrink: 0;
+}
+.lock-toggle-label { font-size: 0.9rem; font-weight: 600; color: #991B1B; cursor: pointer; }
+.lock-toggle-sub   { font-size: 0.8rem; color: var(--gray-500); margin-top: 0.125rem; }
+
+@media (max-width: 520px) {
+  .par-grid, .override-holes-grid { grid-template-columns: repeat(6, 1fr); }
 }
