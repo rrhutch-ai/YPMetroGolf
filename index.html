@@ -39,6 +39,7 @@
     <div class="app-header">
       <button class="back-btn" id="sc-back-btn">← Back</button>
       <h1 id="sc-team-name">Scorecard</h1>
+      <button class="header-action" id="sc-pin-btn">🔐 PIN</button>
       <button class="header-action" id="sc-leaderboard-btn">🏆 Board</button>
     </div>
 
@@ -73,7 +74,7 @@
   <div id="pin-modal" class="modal-overlay hidden">
     <div class="modal-card">
       <h3 id="pin-modal-team-name" style="color:var(--teal);font-size:1.25rem;margin-bottom:0.25rem;"></h3>
-      <p style="color:var(--gray-500);margin-bottom:1rem;">Enter your team PIN to access your scorecard.</p>
+      <p style="color:var(--gray-500);margin-bottom:1rem;">Enter your team PIN to edit scores.</p>
       <div class="form-group">
         <div class="pin-input-wrapper">
           <input type="tel" id="pin-modal-input" placeholder="• • • •" maxlength="6"

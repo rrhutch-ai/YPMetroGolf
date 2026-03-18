@@ -542,6 +542,19 @@ textarea { resize: vertical; min-height: 80px; }
   color: var(--teal-dark);
 }
 
+.hole-score-input:disabled {
+  background: var(--gray-100);
+  color: var(--gray-700);
+  border-color: var(--gray-200);
+  cursor: default;
+  opacity: 1;
+}
+
+.hole-score-input:disabled.has-score {
+  background: var(--gray-50);
+  color: var(--teal-dark);
+}
+
 /* ============================================================
    PLAYER APP — LEADERBOARD VIEW
    ============================================================ */

@@ -6,6 +6,7 @@ let currentTeamId   = null;
 let currentTeamData = null;
 let scoresListener  = null;
 let teamsListener   = null;
+let isViewOnly      = true;
 
 // ── View switcher ─────────────────────────────────────────────
 function showView(name) {
@@ -112,7 +113,12 @@ function renderLandingTeams(teams) {
 
     row.appendChild(leftEl);
     row.appendChild(detailsEl);
-    row.addEventListener('click', () => openPinModal(id, team));
+    row.addEventListener('click', () => {
+      currentTeamId   = id;
+      currentTeamData = team;
+      isViewOnly      = true;
+      openScorecard(id, team);
+    });
     list.appendChild(row);
   });
 }
@@ -151,6 +157,7 @@ function submitPin() {
   document.getElementById('pin-modal').classList.add('hidden');
   currentTeamId   = pendingTeamId;
   currentTeamData = pendingTeam;
+  isViewOnly      = false;
   openScorecard(pendingTeamId, pendingTeam);
 }
 
@@ -172,6 +179,14 @@ function openScorecard(teamId, team) {
 
   const players = Object.values(team.players || {}).filter(p => p);
   document.getElementById('sc-players').textContent = players.join(' • ');
+
+  // Show PIN button only in view-only mode
+  const pinBtn = document.getElementById('sc-pin-btn');
+  if (isViewOnly) {
+    pinBtn.classList.remove('hidden');
+  } else {
+    pinBtn.classList.add('hidden');
+  }
 
   renderHoleRows(teamId, team);
 
@@ -219,8 +234,11 @@ function renderHoleRows(teamId, team) {
     container.appendChild(row);
 
     const input = row.querySelector('input');
-    input.addEventListener('change', e => saveScore(teamId, h, e.target.value));
-    input.addEventListener('input',  () => updateRunningTotal(getCurrentScoresFromInputs()));
+    input.disabled = isViewOnly;
+    if (!isViewOnly) {
+      input.addEventListener('change', e => saveScore(teamId, h, e.target.value));
+      input.addEventListener('input',  () => updateRunningTotal(getCurrentScoresFromInputs()));
+    }
   }
 }
 
@@ -331,6 +349,10 @@ function renderLeaderboard(rows) {
 // ── Navigation ────────────────────────────────────────────────
 document.getElementById('leaderboard-btn')?.addEventListener('click',    openLeaderboard);
 document.getElementById('sc-leaderboard-btn')?.addEventListener('click', openLeaderboard);
+
+document.getElementById('sc-pin-btn')?.addEventListener('click', () => {
+  openPinModal(currentTeamId, currentTeamData);
+});
 
 document.getElementById('sc-back-btn')?.addEventListener('click', () => showView('landing'));
 
