@@ -180,6 +180,10 @@ textarea { resize: vertical; min-height: 80px; }
   font-size: 1.125rem;
   font-weight: 700;
   flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .app-header .back-btn {
