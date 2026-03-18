@@ -253,7 +253,11 @@ function updateHoleInputLockState() {
   const shouldDisable = isViewOnly || isLocked;
   for (let h = 1; h <= 18; h++) {
     const input = document.getElementById(`hole-input-${h}`);
-    if (input) input.disabled = shouldDisable;
+    if (!input) continue;
+    input.disabled = shouldDisable;
+    input.closest('.hole-row')?.querySelectorAll('.stepper-btn').forEach(btn => {
+      btn.disabled = shouldDisable;
+    });
   }
 }
 
@@ -276,16 +280,20 @@ function renderHoleRows(teamId, team) {
           ${isStart ? '<span class="start-badge">YOUR START</span>' : ''}
         </div>
       </div>
-      <input
-        type="number"
-        class="hole-score-input"
-        id="hole-input-${h}"
-        data-hole="${h}"
-        min="1" max="20"
-        placeholder="—"
-        inputmode="numeric"
-        ${shouldDisable ? 'disabled' : ''}
-      />
+      <div class="score-stepper">
+        <button class="stepper-btn stepper-dec" type="button" ${shouldDisable ? 'disabled' : ''}>−</button>
+        <input
+          type="number"
+          class="hole-score-input"
+          id="hole-input-${h}"
+          data-hole="${h}"
+          min="1" max="20"
+          placeholder="—"
+          inputmode="numeric"
+          ${shouldDisable ? 'disabled' : ''}
+        />
+        <button class="stepper-btn stepper-inc" type="button" ${shouldDisable ? 'disabled' : ''}>+</button>
+      </div>
     `;
     container.appendChild(row);
 
@@ -293,6 +301,19 @@ function renderHoleRows(teamId, team) {
       const input = row.querySelector('input');
       input.addEventListener('change', e => saveScore(teamId, h, e.target.value, input));
       input.addEventListener('input',  () => updateRunningTotal(getCurrentScoresFromInputs()));
+
+      row.querySelector('.stepper-dec').addEventListener('click', () => {
+        const cur = parseInt(input.value, 10);
+        input.value = isNaN(cur) ? 1 : Math.max(1, cur - 1);
+        updateRunningTotal(getCurrentScoresFromInputs());
+        saveScore(teamId, h, input.value, input);
+      });
+      row.querySelector('.stepper-inc').addEventListener('click', () => {
+        const cur = parseInt(input.value, 10);
+        input.value = isNaN(cur) ? 1 : Math.min(20, cur + 1);
+        updateRunningTotal(getCurrentScoresFromInputs());
+        saveScore(teamId, h, input.value, input);
+      });
     }
   }
 }
