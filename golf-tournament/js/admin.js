@@ -2,7 +2,7 @@
 // ADMIN CONFIGURATION
 // Change ADMIN_PASSWORD before deploying!
 // ============================================================
-const ADMIN_PASSWORD = 'golf2024';
+const ADMIN_PASSWORD = 'CHANGE_THIS_PASSWORD';
 
 // ============================================================
 // Par values for each hole 1–18 (index 0 = hole 1).
