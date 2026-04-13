@@ -2,7 +2,7 @@
 // ADMIN PORTAL — admin.js
 // ============================================================
 
-const ADMIN_PASSWORD = 'golf2024';
+const ADMIN_PASSWORD = 'golfm3tr0';
 
 let editingTeamId  = null;
 let teamsCache     = {};
@@ -35,6 +35,7 @@ function initAdminData() {
     if (holesRadio) holesRadio.checked = true;
     applyHoleSetting(currentHoles);
     renderParGrid(s.par || {});
+    renderHandicapGrid(s.handicap || {});
   });
 
   db.ref('tournament/teams').on('value', snap => {
@@ -67,6 +68,8 @@ function applyHoleSetting(holes) {
   currentHoles = holes;
   const backSection = document.getElementById('par-back-nine');
   if (backSection) backSection.style.display = holes === 9 ? 'none' : '';
+  const handicapBack = document.getElementById('handicap-back-nine');
+  if (handicapBack) handicapBack.style.display = holes === 9 ? 'none' : '';
 }
 
 document.querySelectorAll('input[name="t-holes"]').forEach(radio => {
@@ -116,6 +119,44 @@ document.getElementById('reset-par-btn')?.addEventListener('click', () => {
     const input = document.getElementById(`par-hole-${h}`);
     if (input) input.value = 4;
   }
+});
+
+// ── Handicap settings ─────────────────────────────────────────
+function renderHandicapGrid(handicapData) {
+  const front = document.getElementById('handicap-grid-front');
+  const back  = document.getElementById('handicap-grid-back');
+  if (!front || !back) return;
+  front.innerHTML = '';
+  back.innerHTML  = '';
+
+  for (let h = 1; h <= 18; h++) {
+    const hcp = handicapData[`hole${h}`] || h;
+    const div = document.createElement('div');
+    div.className = 'par-hole-cell';
+    div.innerHTML = `
+      <span class="par-hole-label">H${h}</span>
+      <input type="number" class="par-hole-input" id="handicap-hole-${h}"
+             value="${hcp}" min="1" max="18" />
+    `;
+    if (h <= 9) front.appendChild(div);
+    else        back.appendChild(div);
+  }
+}
+
+function getHandicapFromInputs() {
+  const handicap = {};
+  for (let h = 1; h <= currentHoles; h++) {
+    const val = parseInt(document.getElementById(`handicap-hole-${h}`)?.value, 10);
+    handicap[`hole${h}`] = (val >= 1 && val <= 18) ? val : h;
+  }
+  return handicap;
+}
+
+document.getElementById('save-handicap-btn')?.addEventListener('click', () => {
+  const handicap = getHandicapFromInputs();
+  db.ref('tournament/settings/handicap').set(handicap)
+    .then(() => showAlert('Handicap settings saved!', 'success'))
+    .catch(err => showAlert('Error: ' + err.message, 'error'));
 });
 
 // ── Team form ─────────────────────────────────────────────────

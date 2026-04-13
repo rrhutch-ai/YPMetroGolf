@@ -2,20 +2,20 @@
    CSS VARIABLES & RESET
    ============================================================ */
 :root {
-  --teal:        #1B6B7A;
-  --teal-dark:   #145460;
-  --teal-light:  #2A8A9E;
-  --orange:      #D97706;
-  --orange-dark: #B45309;
-  --orange-light:#F59E0B;
+  --teal:        #002F7A;
+  --teal-dark:   #000D44;
+  --teal-light:  #148AE2;
+  --orange:      #148AE2;
+  --orange-dark: #002F7A;
+  --orange-light:#EFF4F9;
   --white:       #FFFFFF;
-  --gray-50:     #F9FAFB;
-  --gray-100:    #F3F4F6;
-  --gray-200:    #E5E7EB;
-  --gray-300:    #D1D5DB;
-  --gray-500:    #6B7280;
-  --gray-700:    #374151;
-  --gray-900:    #111827;
+  --gray-50:     #EFF4F9;
+  --gray-100:    #EFF4F9;
+  --gray-200:    #DCE1E5;
+  --gray-300:    #ABAFB2;
+  --gray-500:    #797E82;
+  --gray-700:    #42494F;
+  --gray-900:    #101820;
   --red:         #DC2626;
   --green:       #16A34A;
   --shadow-sm:   0 1px 2px rgba(0,0,0,0.05);
@@ -132,7 +132,7 @@ select:focus,
 textarea:focus {
   outline: none;
   border-color: var(--teal);
-  box-shadow: 0 0 0 3px rgba(27,107,122,0.12);
+  box-shadow: 0 0 0 3px rgba(0,47,122,0.12);
 }
 
 textarea { resize: vertical; min-height: 80px; }
@@ -370,7 +370,7 @@ textarea { resize: vertical; min-height: 80px; }
   font-size: 0.8125rem;
   font-weight: 600;
   color: var(--teal);
-  background: rgba(27,107,122,0.1);
+  background: rgba(0,47,122,0.1);
   padding: 0.2rem 0.5rem;
   border-radius: 4px;
 }
@@ -475,7 +475,7 @@ textarea { resize: vertical; min-height: 80px; }
 }
 
 .view-only-banner {
-  background: #FFF8E1;
+  background: #EFF4F9;
   border-bottom: 2px solid var(--orange);
   color: var(--orange-dark);
   font-size: 0.9rem;
@@ -507,7 +507,7 @@ textarea { resize: vertical; min-height: 80px; }
 
 .hole-row.starting-hole {
   border-color: var(--orange);
-  background: #FFFBEB;
+  background: #EFF4F9;
 }
 
 .hole-row:has(input:focus) {
@@ -613,7 +613,7 @@ textarea { resize: vertical; min-height: 80px; }
   outline: none;
   border-color: var(--teal);
   background: white;
-  box-shadow: 0 0 0 3px rgba(27,107,122,0.12);
+  box-shadow: 0 0 0 3px rgba(0,47,122,0.12);
 }
 
 .hole-score-input.has-score {
@@ -659,7 +659,7 @@ textarea { resize: vertical; min-height: 80px; }
 
 .leaderboard-card.leader {
   border-color: var(--orange);
-  background: #FFFBEB;
+  background: #EFF4F9;
 }
 
 .leaderboard-card.current-team {
@@ -1008,7 +1008,7 @@ textarea { resize: vertical; min-height: 80px; }
 
 .csv-upload-area:hover {
   border-color: var(--teal);
-  background: rgba(27,107,122,0.04);
+  background: rgba(0,47,122,0.04);
 }
 
 .csv-upload-area p {

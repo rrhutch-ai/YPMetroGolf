@@ -14,14 +14,13 @@
 // ============================================================
 
 const firebaseConfig = {
-  apiKey: "AIzaSyAZKiEuV8X4nmaILKOficfMOX1ZLUACzB4",
-  authDomain: "golf-scorer-2026.firebaseapp.com",
-  databaseURL: "https://golf-scorer-2026-default-rtdb.firebaseio.com",
-  projectId: "golf-scorer-2026",
-  storageBucket: "golf-scorer-2026.firebasestorage.app",
-  messagingSenderId: "516909768092",
-  appId: "1:516909768092:web:74ff06f4f6e6cc4c0a3c59",
-  measurementId: "G-GEK42HT58D"
+  apiKey: "AIzaSyBzWnAcd0S2HdUFTcnuw-qZ7uJGo_siOjI",
+  authDomain: "ypmetrogolf.firebaseapp.com",
+  databaseURL: "https://ypmetrogolf-default-rtdb.firebaseio.com",
+  projectId: "ypmetrogolf",
+  storageBucket: "ypmetrogolf.firebasestorage.app",
+  messagingSenderId: "793589397451",
+  appId: "1:793589397451:web:a921785c8d8c106e11a84e"
 };
 
 // Initialize Firebase (do not edit below this line)

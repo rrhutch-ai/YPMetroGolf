@@ -8,6 +8,7 @@ let scoresListener  = null;
 let teamsListener   = null;
 let isViewOnly      = true;
 let currentPar      = {};
+let currentHandicap = {};
 let isLocked        = false;
 let holeCount       = 18;
 let scorecardOrigin = 'landing';
@@ -45,8 +46,9 @@ function loadSettings() {
       instrEl.style.display = 'none';
     }
 
-    currentPar = s.par    || {};
-    isLocked   = s.locked || false;
+    currentPar      = s.par      || {};
+    currentHandicap = s.handicap || {};
+    isLocked        = s.locked   || false;
     holeCount  = s.holes  || 18;
 
     // Re-render landing teams with updated par/progress
@@ -398,6 +400,20 @@ function updateRunningTotal(scores) {
   }
 }
 
+// ── Leaderboard tiebreaker ────────────────────────────────────
+function handicapTiebreak(scoresA, scoresB) {
+  if (Object.keys(currentHandicap).length === 0) return 0;
+  const holes = Object.keys(currentHandicap).sort(
+    (ha, hb) => currentHandicap[ha] - currentHandicap[hb]
+  );
+  for (const holeKey of holes) {
+    const sa = Number(scoresA[holeKey]) || 0;
+    const sb = Number(scoresB[holeKey]) || 0;
+    if (sa > 0 && sb > 0 && sa !== sb) return sa - sb;
+  }
+  return 0;
+}
+
 // ── Leaderboard ───────────────────────────────────────────────
 function openLeaderboard() {
   if (teamsListener) db.ref('tournament/teams').off('value', teamsListener);
@@ -415,15 +431,21 @@ function openLeaderboard() {
       const parForScored  = scoredKeys.reduce((sum, k) => sum + (currentPar[k] || 0), 0);
       const relScore      = (hasPar && parForScored > 0) ? total - parForScored : null;
       const players       = Object.values(team.players || {});
-      return { id, name: team.name, players, total, holesComplete, isComplete, relScore };
+      return { id, name: team.name, players, total, holesComplete, isComplete, relScore, scores };
     });
 
     rows.sort((a, b) => {
       const aStarted = a.total > 0;
       const bStarted = b.total > 0;
       if (aStarted && bStarted) {
-        if (a.relScore !== null && b.relScore !== null) return a.relScore - b.relScore;
-        return a.total - b.total;
+        let primaryDiff;
+        if (a.relScore !== null && b.relScore !== null) {
+          primaryDiff = a.relScore - b.relScore;
+        } else {
+          primaryDiff = a.total - b.total;
+        }
+        if (primaryDiff !== 0) return primaryDiff;
+        return handicapTiebreak(a.scores, b.scores);
       }
       if (aStarted) return -1;
       if (bStarted) return  1;

@@ -14,7 +14,7 @@
   <div id="login-view" class="admin-login-wrapper">
     <div class="admin-login-card">
       <div class="logo-area">
-        <div class="logo-icon">⛳</div>
+        <img src="../assets/ShieldGOshield_Blue_Small.png" alt="SEBTS Logo" style="height:64px;margin-bottom:0.5rem;" />
         <h1>Tournament Admin</h1>
         <p>Enter your admin password to continue</p>
       </div>
@@ -37,7 +37,7 @@
   <div id="admin-view" class="hidden">
 
     <div class="admin-header-bar">
-      <h1>⛳ Tournament Admin</h1>
+      <h1><img src="../assets/ShieldGOshield_White_Small.png" alt="" style="height:22px;vertical-align:middle;margin-right:0.5rem;" />Tournament Admin</h1>
       <span class="admin-badge">ADMIN</span>
     </div>
 
@@ -114,6 +114,23 @@
           <button type="button" class="btn btn-primary" id="save-par-btn"
                   style="width:auto;padding:.625rem 1.75rem;margin-top:1rem;">
             Save Par Settings
+          </button>
+
+          <hr class="form-divider" style="margin-top:1.5rem;" />
+
+          <p style="font-size:0.875rem;font-weight:700;color:var(--gray-700);margin-bottom:0.375rem;">Hole Handicap</p>
+          <p style="font-size:0.875rem;color:var(--gray-500);margin-bottom:1rem;">
+            Rank each hole by difficulty (1 = hardest, 18 = easiest). Used to break ties on the leaderboard.
+          </p>
+          <div class="par-nine-label">Front 9</div>
+          <div class="par-grid" id="handicap-grid-front"></div>
+          <div id="handicap-back-nine">
+            <div class="par-nine-label" style="margin-top:0.875rem;">Back 9</div>
+            <div class="par-grid" id="handicap-grid-back"></div>
+          </div>
+          <button type="button" class="btn btn-primary" id="save-handicap-btn"
+                  style="width:auto;padding:.625rem 1.75rem;margin-top:1rem;">
+            Save Handicap Settings
           </button>
         </div>
       </div>
