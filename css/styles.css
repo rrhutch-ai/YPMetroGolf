@@ -886,10 +886,6 @@ textarea { resize: vertical; min-height: 80px; }
   gap: 0.75rem;
 }
 
-@media (max-width: 480px) {
-  .player-grid,
-  .form-row { grid-template-columns: 1fr; }
-}
 
 .team-card {
   background: var(--white);
@@ -1183,6 +1179,92 @@ textarea { resize: vertical; min-height: 80px; }
   flex-shrink: 0;
 }
 
+@media (max-width: 600px) {
+  .player-grid,
+  .form-row { grid-template-columns: 1fr; }
+}
+
 @media (max-width: 520px) {
   .par-grid, .override-holes-grid { grid-template-columns: repeat(6, 1fr); }
+}
+
+/* ============================================================
+   MOBILE — small screen fixes (≤ 420px)
+   ============================================================ */
+@media (max-width: 420px) {
+
+  /* Date / time inputs — prevent native chrome overflow */
+  input[type="date"],
+  input[type="time"] {
+    font-size: 0.875rem;
+    letter-spacing: -0.01em;
+  }
+
+  /* Par / handicap grid — 3 columns on very small screens */
+  .par-grid, .override-holes-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.5rem;
+  }
+
+  /* Par / handicap inputs — fit two-digit numbers */
+  .par-hole-input {
+    font-size: 0.8125rem;
+    padding: 0.3rem 0.1rem;
+  }
+
+  /* Header action buttons */
+  .app-header .header-action,
+  .app-header .back-btn {
+    font-size: 0.75rem;
+    padding: 0.4rem 0.5rem;
+  }
+
+  /* Stepper controls */
+  .stepper-btn {
+    width: 32px;
+    height: 44px;
+    font-size: 1rem;
+  }
+
+  .hole-score-input {
+    width: 52px;
+    height: 44px;
+    font-size: 1.2rem;
+  }
+
+  /* Tournament banner */
+  .tournament-banner {
+    padding: 1.25rem 1rem;
+  }
+
+  .tournament-banner h1 {
+    font-size: 1.375rem;
+  }
+
+  /* PIN modal */
+  .modal-card {
+    padding: 1.5rem 1.25rem;
+  }
+
+  .pin-input-wrapper input {
+    font-size: 1.1rem;
+    letter-spacing: 0.18em;
+  }
+}
+
+/* Score summary bar — prevent player names overflowing */
+.score-summary-bar .team-players {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 55%;
+}
+
+/* Hole meta — prevent overflow in scorecard rows */
+.hole-meta { min-width: 0; }
+
+/* CSV preview table — horizontal scroll on small screens */
+#csv-preview-content {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 }
