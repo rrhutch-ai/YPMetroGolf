@@ -78,15 +78,9 @@ function renderLandingTeams(teams) {
   if (entries.length === 0) { section.style.display = 'none'; return; }
   section.style.display = 'block';
 
-  const sorted = Object.entries(teams).sort((a, b) => {
-    const holeA = parseInt(a[1].startingHole, 10) || 1;
-    const holeB = parseInt(b[1].startingHole, 10) || 1;
-    if (holeA !== holeB) return holeA - holeB;
-    const timeA = parseTeeTime(a[1].teeTime);
-    const timeB = parseTeeTime(b[1].teeTime);
-    if (timeA !== timeB) return timeA - timeB;
-    return a[1].name.localeCompare(b[1].name);
-  });
+  const sorted = Object.entries(teams).sort((a, b) =>
+    a[1].name.localeCompare(b[1].name, undefined, { numeric: true, sensitivity: 'base' })
+  );
 
   list.innerHTML = '';
   sorted.forEach(([id, team]) => {
